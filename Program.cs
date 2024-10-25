@@ -3,16 +3,28 @@ using System.Text.Json;
 
 namespace Cinema
 {
-    internal class Program
+    public class Program
     {
-        public void Main(string[] args)
+        public static void Main(string[] args)
+        {
+            var program = new Program();
+            program.Run(args);
+        }
+
+        public void Run(string[] args)
         {
             Console.CursorVisible = false;
             string path = "CinemaDB.json";
 
             Database database = LoadOrCreateDatabase(path);
 
-            
+            //Testowanie dodania filmu do bazy
+            //var film = new Film("Pogoń za oceną", "Naj naj film o utracie chęci do życia", "Dramat");
+            //database.AddFilm(film);
+            //var test = new Room("Sala100", 200);
+            //database.AddRoom(test);
+
+            SaveDatabase(database ,path);
 
             ShowTitlePage();
             string role = ChooseRole();
@@ -35,7 +47,7 @@ namespace Cinema
             }
         }
 
-        static void ShowAsciiArt()
+        void ShowAsciiArt()
         {
             AnsiConsole.Write(
                 new FigletText("CinemaStar")
@@ -43,7 +55,7 @@ namespace Cinema
                 .Color(Color.Gold1));
         }
 
-        static void ShowTitlePage()
+        void ShowTitlePage()
         {
             ShowAsciiArt();
 
@@ -64,7 +76,7 @@ namespace Cinema
             AnsiConsole.Write(menu);
         }
 
-        static string ChooseRole()
+        string ChooseRole()
         {
             // Obliczanie szerokości konsoli dla wyśrodkowania
             int width = Console.WindowWidth;
@@ -133,19 +145,22 @@ namespace Cinema
             }
 
             string json = File.ReadAllText(_path);
+            var option = new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, PropertyNameCaseInsensitive = true };
 
-            return JsonSerializer.Deserialize<Database>(json);
+            return JsonSerializer.Deserialize<Database>(json, option);
         }
 
         void SaveDatabase(Database _database, string _path)
         {
-            var option = new JsonSerializerOptions { WriteIndented = true };
+            var option = new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, PropertyNameCaseInsensitive = true };
             string json = JsonSerializer.Serialize(_database, option);
+
+            //Console.WriteLine(json);
 
             File.WriteAllText(_path, json);
         }
 
-        static void ShowRepertoireCalendar()
+        void ShowRepertoireCalendar()
         {
             // Tworzenie kalendarza na dany miesiąc
             var calendar = new Calendar(DateTime.Now.Year, DateTime.Now.Month)
@@ -163,7 +178,7 @@ namespace Cinema
             AnsiConsole.MarkupLine("[green]Film C:[/] 5 dni od teraz");
         }
 
-        static bool PromptForEmployeeCode()
+        bool PromptForEmployeeCode()
         {
             // Wyświetlenie promptu do wpisania kodu
             string code = AnsiConsole.Prompt(
@@ -180,7 +195,7 @@ namespace Cinema
             }
         }
 
-        static void ShowAdminPanel()
+        void ShowAdminPanel()
         {
             // Panel administracyjny - na razie placeholder
             AnsiConsole.Markup("[bold green]Witamy w panelu administratorskim kina![/]");

@@ -11,6 +11,9 @@ namespace Cinema
         private List<Film> filmsList;
         private List<Room> roomList;
 
+        public List<Film> FilmsList { get => filmsList; set => filmsList = value; }
+        public List<Room> RoomList { get => roomList; set => roomList = value; }
+
         public Database()
         {
             filmsList = new List<Film>();
@@ -22,6 +25,11 @@ namespace Cinema
             filmsList.Add(_film);
         }
 
+        public void AddRoom(Room _room)
+        {
+            roomList.Add(_room);
+        }
+
         public void RemoveFilm(Film _film)
         {
             filmsList.Remove(_film);
@@ -31,6 +39,11 @@ namespace Cinema
         {
             return filmsList;
         }
+
+        public List<Room> GetRoomList()
+        {
+            return roomList;
+        }
     }
 
     public class Film
@@ -39,12 +52,18 @@ namespace Cinema
         private string description;
         private string type;
 
+        public string Name { get { return name; } set { name = value; } }
+        public string Description { get { return description; } set { description = value; } }
+        public string Type { get { return type; } set { type = value; } }
+
         public Film (string _name, string _desc, string _type)
         {
             this.name = _name;
             this.description = _desc;
             this.type = _type;
         }
+
+        public Film () { }
 
         public override string ToString()
         {
@@ -59,7 +78,10 @@ namespace Cinema
         private State[] states;
 
         public string Name { get { return name; } set { name = value; } }
-        public int ChairsQuantity { get {  return chairsQuantity; } }
+        public int ChairsQuantity { get {  return chairsQuantity; } set { chairsQuantity = value; } }
+        public State[] States { get {  return states; } set { states = value; } }
+
+        public Room () { }
 
         public Room (string _name, int _quantity)
         {
@@ -78,6 +100,13 @@ namespace Cinema
             Taken = 1,
             Broken = 2
         };
+
+        public void SetChairState(int _chairNumber, int state)
+        {
+            if (state < 0 || state > 2)
+                throw new Exception("");
+            this.States[_chairNumber] = (State)state;
+        }
 
         public State GetChairState (int _chairNumber)
         {
