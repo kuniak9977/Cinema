@@ -1,5 +1,6 @@
 ﻿using Spectre.Console;
 using System.Text.Json;
+using Cinema.Models;
 
 namespace Cinema
 {
@@ -19,10 +20,11 @@ namespace Cinema
             Database database = LoadOrCreateDatabase(path);
 
             //Testowanie dodania filmu do bazy
-            //var film = new Film("Pogoń za oceną", "Naj naj film o utracie chęci do życia", "Dramat");
-            //database.AddFilm(film);
-            //var test = new Room("Sala100", 200);
-            //database.AddRoom(test);
+            var film = new Film("Pogoń za oceną", "Naj naj film o utracie chęci do życia", "Dramat");
+            database.AddFilm(film);
+            var test = new Room("Sala100", 200);
+            database.AddRoom(test);
+            database.AddEmployee("Maria","Kowalska", 1234, "kasjerka");
 
             SaveDatabase(database ,path);
 
@@ -199,6 +201,13 @@ namespace Cinema
         {
             // Panel administracyjny - na razie placeholder
             AnsiConsole.Markup("[bold green]Witamy w panelu administratorskim kina![/]");
+
+            var gridAdminPanel = new Grid();
+            //gridAdminPanel.AddColumns(3);
+            
+            var panel = new Panel("Filmy");
+            var panel2 = new Panel("Sale");
+            
         }
     }
 }
