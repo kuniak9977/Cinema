@@ -17,7 +17,8 @@ namespace Cinema
             Console.CursorVisible = false;
             string path = "CinemaDB.json";
 
-            Database database = LoadOrCreateDatabase(path);
+            Database database = new Database();
+            database = database.LoadOr
 
             //Testowanie dodania filmu do bazy
             /*
@@ -158,18 +159,7 @@ namespace Cinema
             }
         }
 
-        Database LoadOrCreateDatabase (string _path)
-        {
-            if (!File.Exists(_path))
-            {
-                return new Database();
-            }
-
-            string json = File.ReadAllText(_path);
-            var option = new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, PropertyNameCaseInsensitive = true };
-
-            return JsonSerializer.Deserialize<Database>(json, option);
-        }
+        
 
         void SaveDatabase(Database _database, string _path)
         {
@@ -443,16 +433,13 @@ namespace Cinema
             Console.SetCursorPosition(0, 13);
 
             List<Room> list = _database.RoomList;
-            Dictionary<string,string> sala_film = new Dictionary<string,string>();
-            int col = 22, rows = 18;
 
-            int width = Console.WindowWidth;
-            //Console.WindowWidth = width + 20;
+            int col = 22;
 
             Grid roomgrid = new Grid();
             roomgrid.Expand();
             roomgrid.Centered();
-            roomgrid.Width(width);
+            roomgrid.Width(Console.WindowWidth);
 
             Markup taken = new Markup("{[yellow]X[/]}");
             Markup free = new Markup("{ }");
@@ -464,12 +451,9 @@ namespace Cinema
             roomgrid.AddColumns(22);
             roomgrid.AddRow(gridColumsHeader);
             roomgrid.Alignment(Justify.Center);
-
             
             int quantity = room.ChairsQuantity;
             int checkedSeats = 0;
-
-            //AnsiConsole.Write(roomgrid);
             
             for (int i = 0; i < quantity; i++)
             {
