@@ -16,6 +16,7 @@ namespace Cinema
         {
             Console.CursorVisible = false;
             string path = "CinemaDB.json";
+            bool isWorking = true;
 
             Database database = LoadOrCreateDatabase(path);
 
@@ -37,17 +38,22 @@ namespace Cinema
             */
             ShowTitlePage();
             string role = ChooseRole();
-            int opt = ShowAdminPanel();
-
-            switch (opt)
+            int opt;
+            while (isWorking)
             {
-                case 1:
-                    MoviePanel(database);
-                    break;
-                case 2:
-                    RoomPanel(database);
-                    break;
+                switch (opt = ShowAdminPanel())
+                {
+                    case 0:
+                        MoviePanelAdm p = new MoviePanelAdm();
+                        isWorking = p.MoviePanel(database);
+                        break;
+                    case 1:
+                        RoomPanelAdm r = new RoomPanelAdm();
+                        r.RoomPanel(database);
+                        break;
+                }
             }
+            
             SaveDatabase(database, path);
             /*
             if (role == "Gość")
@@ -181,24 +187,6 @@ namespace Cinema
             File.WriteAllText(_path, json);
         }
 
-        void ShowRepertoireCalendar()
-        {
-            // Tworzenie kalendarza na dany miesiąc
-            var calendar = new Calendar(DateTime.Now.Year, DateTime.Now.Month)
-                .AddCalendarEvent(DateTime.Now.AddDays(1)) // Film A
-                .AddCalendarEvent(DateTime.Now.AddDays(3)) // Film B
-                .AddCalendarEvent(DateTime.Now.AddDays(5)) // Film C
-                .Centered();
-
-            // Wyświetlenie kalendarza
-            AnsiConsole.Write(calendar);
-
-            // Wyświetlenie opisów filmów pod kalendarzem
-            AnsiConsole.MarkupLine("[green]Film A:[/] 1 dzień od teraz");
-            AnsiConsole.MarkupLine("[green]Film B:[/] 3 dni od teraz");
-            AnsiConsole.MarkupLine("[green]Film C:[/] 5 dni od teraz");
-        }
-
         bool PromptForEmployeeCode()
         {
             // Wyświetlenie promptu do wpisania kodu
@@ -222,7 +210,8 @@ namespace Cinema
             Console.Clear();
 
             bool isChoosing = true;
-            int option = 1;
+            string[] option = { "Filmy", "Sale", "Pracownicy" };
+            int selectedOption = 0;
             ConsoleKeyInfo key;
 
             Markup moviePanel = new Markup("Możliwe opcje do zrobienia w tym panelu:\n" +
@@ -269,19 +258,19 @@ namespace Cinema
 
                 //AnsiConsole.Clear();
                 Console.SetCursorPosition(0, 0);
-                switch (option)
+                switch (selectedOption)
                 {
-                    case 1:
+                    case 0:
                         tableComlumn1 = new TableColumn(new Markup($"[lime]>Filmy<[/]")).Centered();
                         tableComlumn2 = new TableColumn(new Markup($"[aqua]Sale[/]")).Centered();
                         tableComlumn3 = new TableColumn(new Markup($"[aqua]Pracownicy[/]")).Centered();
                         break;
-                    case 2:
+                    case 1:
                         tableComlumn1 = new TableColumn(new Markup($"[aqua]Filmy[/]")).Centered();
                         tableComlumn2 = new TableColumn(new Markup($"[lime]>Sale<[/]")).Centered();
                         tableComlumn3 = new TableColumn(new Markup($"[aqua]Pracownicy[/]")).Centered();
                         break;
-                    case 3:
+                    case 2:
                         tableComlumn1 = new TableColumn(new Markup($"[aqua]Filmy[/]")).Centered();
                         tableComlumn2 = new TableColumn(new Markup($"[aqua]Sale[/]")).Centered();
                         tableComlumn3 = new TableColumn(new Markup($"[lime]>Pracownicy<[/]")).Centered();
@@ -298,68 +287,13 @@ namespace Cinema
 
                 key = Console.ReadKey();
                 if (key.Key == ConsoleKey.RightArrow)
-                    option++;
+                    selectedOption = (selectedOption + 1) % option.Length;
                 else if (key.Key == ConsoleKey.LeftArrow)
-                    option--;
-                else if ( key.Key == ConsoleKey.Enter)
+                    selectedOption = (selectedOption - 1 + option.Length) % option.Length;
+                else if (key.Key == ConsoleKey.Enter)
                     isChoosing = false;
             }
-            return option;
-        }
-
-        void MoviePanel(Database _database)
-        {
-            List<Film> films = _database.FilmsList;
-            int posY = 14;
-
-            Table movies = new Table();
-            movies.Expand();
-            movies.Border(TableBorder.Horizontal);
-
-            TableColumn tb1 = new TableColumn("[bold] Nazwa filmu:[/]");
-            TableColumn tb2 = new TableColumn("[bold] Opis:[/]");
-            TableColumn tb3 = new TableColumn("[bold] Gatunek:[/]");
-            TableColumn tb4 = new TableColumn("[bold] Czas odtwarzania:[/]");
-            TableColumn tb5 = new TableColumn("[bold] Oceny:[/]");
-
-            movies.AddColumns(tb1,tb2,tb3,tb4,tb5);
-
-            foreach (Film film in films)
-            {
-                movies.AddRow($"{film.Name}", $"{film.Description}", $"{film.Type}", $"{WriteFilmLength(film.LengthSec)}", $"{film.Points}/10");
-            }
-
-            AnsiConsole.Write(movies);
-            int newPosY = Console.CursorTop;
-
-            var wtf = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                .Title("Wybierz działanie na bazie:")
-                .AddChoices(new[] {"Dodaj film", "Usuń film", "Przeglądaj bazę", "Powrót" }));
-
-            ClearConsolepart(posY, newPosY);
-            switch (wtf)
-            {
-                case "Dodaj film":
-                    AddingFilm(_database);
-                    ClearConsolepart(posY, newPosY + 20);
-                    break;
-                case "Usuń film":
-                    RemovingFilm(_database);
-                    break;
-                case "Powrót":
-                    ShowAdminPanel();
-                    break;
-            }
-            MoviePanel(_database);
-        }
-
-        string WriteFilmLength(int _sec)
-        {
-            int M = (_sec / 60) % 60;
-            int S = _sec % 60;
-            int H = M / 60;
-            return $"{H}:{M}:{S}";
+            return selectedOption;
         }
 
         void ClearConsolepart(int _oldY, int _newY)
@@ -371,126 +305,6 @@ namespace Cinema
                 Console.Write(new string (' ', width));
             }
             Console.SetCursorPosition(0, _oldY);
-        }
-
-        void AddingFilm(Database _database)
-        {
-            Console.Write("Dodawanie filmu. Wprowadzane dane potwierdzaj Enter\n");
-            Console.WriteLine("Podaj nazwę filmu. Nie może być pusty!");
-            string name = null;
-            while (name == null)
-            {
-                name = Console.ReadLine();
-            }
-            Console.WriteLine("Wprowadź opis filmu:");
-            string desc = Console.ReadLine();
-            Console.WriteLine("Gatunek filmu:");
-            string type = Console.ReadLine();
-            Console.WriteLine("Czas trwania w sekundach");
-            int length = int.Parse(Console.ReadLine());
-            Console.WriteLine("Oceny filmu");
-            double points = double.Parse(Console.ReadLine());
-            Film newFilm = new Film(name, desc, type, length, points);
-            _database.AddFilm(newFilm);
-        }
-
-        bool RemovingFilm(Database _database)
-        {
-            List<Film> list = _database.FilmsList;
-
-            Console.WriteLine("Podaj tytuł filmu do usunięcia. (Dokładny)");
-            string _name = Console.ReadLine();
-
-            var filmToRemove = list.FirstOrDefault(f => f.Name.Equals(_name, StringComparison.OrdinalIgnoreCase));
-            if (filmToRemove != null)
-            {
-                list.Remove(filmToRemove);
-                _database.FilmsList = list;
-                return true;
-            }
-            return false;
-        }
-
-        void RoomPanel(Database _database)
-        {
-            Console.SetCursorPosition(0, 13);
-            ClearConsolepart(13,30);
-            Console.WriteLine("Zarządzanie salami. Najpierw wybierasz sale, a następnie czynność.");
-
-            List<Room> list = _database.RoomList;
-            string[] rooms= new string[list.Count];
-            int i = 0;
-            foreach (Room room in list)
-            {
-                rooms[i++] = room.Name;
-            }
-
-            var selection = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                .Title("Wybierz sale:")
-                .AddChoices(rooms));
-
-            var action = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                .Title("Wybierz działanie")
-                .AddChoices(new[] {"Przegląd sali", "Zaplanuj film", "Zobacz historię filmów"}));
-
-            RoomReview(_database, selection);
-        }
-
-        void RoomReview(Database _database, string _selection)
-        {
-            Console.SetCursorPosition(0, 13);
-
-            List<Room> list = _database.RoomList;
-
-            int col = 22;
-
-            Grid roomgrid = new Grid();
-            roomgrid.Expand();
-            roomgrid.Centered();
-            roomgrid.Width(Console.WindowWidth);
-
-            Markup taken = new Markup("{[yellow]X[/]}");
-            Markup free = new Markup("{ }");
-            Markup broken = new Markup("{[Red]B[/]}");
-
-            Room room = list.Find(r => r.Name == _selection);
-
-            string[] gridColumsHeader = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "" };
-            roomgrid.AddColumns(22);
-            roomgrid.AddRow(gridColumsHeader);
-            roomgrid.Alignment(Justify.Center);
-            
-            int quantity = room.ChairsQuantity;
-            int checkedSeats = 0;
-            
-            for (int i = 0; i < quantity; i++)
-            {
-                Markup[] insertRow = new Markup[col];
-                insertRow[0] = new Markup("");
-                insertRow[21] = new Markup("");
-                for (int j = 1; j < col -1; j++)
-                {
-                    if (room.States[checkedSeats] == Room.State.Free)
-                    {
-                        insertRow[j] = free;
-                    } else if (room.States[checkedSeats] == Room.State.Taken)
-                    {
-                        insertRow[j] = taken;
-                    }else
-                    {
-                        insertRow[j] = broken;
-                    }
-                    checkedSeats++;
-                    quantity--;
-                }
-
-                roomgrid.AddRow(insertRow);
-                
-            }
-            
-            AnsiConsole.Write(roomgrid);
         }
     }
 }
