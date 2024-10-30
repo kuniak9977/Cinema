@@ -434,6 +434,8 @@ namespace Cinema
                 new SelectionPrompt<string>()
                 .Title("Wybierz działanie")
                 .AddChoices(new[] {"Przegląd sali", "Zaplanuj film", "Zobacz historię filmów"}));
+
+            RoomReview(_database, selection);
         }
 
         void RoomReview(Database _database, string _selection)
@@ -442,23 +444,59 @@ namespace Cinema
 
             List<Room> list = _database.RoomList;
             Dictionary<string,string> sala_film = new Dictionary<string,string>();
-            int col = 20, rows = 18;
+            int col = 22, rows = 18;
+
+            int width = Console.WindowWidth;
+            //Console.WindowWidth = width + 20;
 
             Grid roomgrid = new Grid();
             roomgrid.Expand();
             roomgrid.Centered();
+            roomgrid.Width(width);
 
-            Markup taken = new Markup("{ [yellow]X[/] }");
-            Markup free = new Markup("{  }");
-            Markup broken = new Markup("{ [Red]B[/] }");
+            Markup taken = new Markup("{[yellow]X[/]}");
+            Markup free = new Markup("{ }");
+            Markup broken = new Markup("{[Red]B[/]}");
 
-            Room room = list.Find
+            Room room = list.Find(r => r.Name == _selection);
 
-            for (int i = 0; i < list.Count; i++)
+            string[] gridColumsHeader = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "" };
+            roomgrid.AddColumns(22);
+            roomgrid.AddRow(gridColumsHeader);
+            roomgrid.Alignment(Justify.Center);
+
+            
+            int quantity = room.ChairsQuantity;
+            int checkedSeats = 0;
+
+            //AnsiConsole.Write(roomgrid);
+            
+            for (int i = 0; i < quantity; i++)
             {
+                Markup[] insertRow = new Markup[col];
+                insertRow[0] = new Markup("");
+                insertRow[21] = new Markup("");
+                for (int j = 1; j < col -1; j++)
+                {
+                    if (room.States[checkedSeats] == Room.State.Free)
+                    {
+                        insertRow[j] = free;
+                    } else if (room.States[checkedSeats] == Room.State.Taken)
+                    {
+                        insertRow[j] = taken;
+                    }else
+                    {
+                        insertRow[j] = broken;
+                    }
+                    checkedSeats++;
+                    quantity--;
+                }
 
+                roomgrid.AddRow(insertRow);
+                
             }
-
+            
+            AnsiConsole.Write(roomgrid);
         }
     }
 }
