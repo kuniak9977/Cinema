@@ -23,12 +23,18 @@ namespace Cinema
             /*
             var film = new Film("Pogoń za oceną", "Naj naj film o utracie chęci do życia", "Dramat", 6490, 4.5);
             database.AddFilm(film);
-            var test = new Room("Sala100", 200);
+            var test = new Room("Sala100", 180);
+            var test2 = new Room("Sala343", 134);
+            var test3 = new Room("Sala234", 256);
+            var test4 = new Room("Sala13", 80);
             database.AddRoom(test);
+            database.AddRoom(test2);
+            database.AddRoom(test3);
+            database.AddRoom(test4);
             database.AddEmployee("Maria","Kowalska", 1234, "kasjerka");
-            */
+            
             SaveDatabase(database ,path);
-
+            */
             ShowTitlePage();
             string role = ChooseRole();
             int opt = ShowAdminPanel();
@@ -37,6 +43,9 @@ namespace Cinema
             {
                 case 1:
                     MoviePanel(database);
+                    break;
+                case 2:
+                    RoomPanel(database);
                     break;
             }
             SaveDatabase(database, path);
@@ -212,13 +221,9 @@ namespace Cinema
             AnsiConsole.Clear();
             Console.Clear();
 
-            Color choosing = Color.Lime;
-            Color normal = Color.Aqua;
             bool isChoosing = true;
             int option = 1;
             ConsoleKeyInfo key;
-
-            int posX = 0, posY = 0;
 
             Markup moviePanel = new Markup("Możliwe opcje do zrobienia w tym panelu:\n" +
                 "Dodawanie filmow do bazy\n" +
@@ -242,7 +247,6 @@ namespace Cinema
 
             Table mainTable;
 
-
             TableColumn tableComlumn1 = new TableColumn("");
             TableColumn tableComlumn2 = new TableColumn("");
             TableColumn tableComlumn3 = new TableColumn("");
@@ -256,8 +260,6 @@ namespace Cinema
             var tablePanelEmployers = new Panel(workersPanel);
             tablePanelEmployers.Header = new PanelHeader("[Red]Baza danych pracowników[/]");
 
-            
-
             while (isChoosing)
             {
                 mainTable = new Table();
@@ -265,7 +267,8 @@ namespace Cinema
                 mainTable.Expand();
                 mainTable.BorderColor(Color.Yellow4).Border(TableBorder.Rounded);
 
-                AnsiConsole.Clear();
+                //AnsiConsole.Clear();
+                Console.SetCursorPosition(0, 0);
                 switch (option)
                 {
                     case 1:
@@ -281,7 +284,7 @@ namespace Cinema
                     case 3:
                         tableComlumn1 = new TableColumn(new Markup($"[aqua]Filmy[/]")).Centered();
                         tableComlumn2 = new TableColumn(new Markup($"[aqua]Sale[/]")).Centered();
-                        tableComlumn3 = new TableColumn(new Markup($"[lime]Pracownicy[/]")).Centered();
+                        tableComlumn3 = new TableColumn(new Markup($"[lime]>Pracownicy<[/]")).Centered();
                         break;
                 }
 
@@ -292,7 +295,6 @@ namespace Cinema
                 mainTable.AddRow(tablePanelMovie, tablePanelRoom, tablePanelEmployers);
 
                 AnsiConsole.Write(mainTable);
-                posX = Console.CursorLeft; posY = Console.CursorTop;
 
                 key = Console.ReadKey();
                 if (key.Key == ConsoleKey.RightArrow)
@@ -407,6 +409,56 @@ namespace Cinema
                 return true;
             }
             return false;
+        }
+
+        void RoomPanel(Database _database)
+        {
+            Console.SetCursorPosition(0, 13);
+            ClearConsolepart(13,30);
+            Console.WriteLine("Zarządzanie salami. Najpierw wybierasz sale, a następnie czynność.");
+
+            List<Room> list = _database.RoomList;
+            string[] rooms= new string[list.Count];
+            int i = 0;
+            foreach (Room room in list)
+            {
+                rooms[i++] = room.Name;
+            }
+
+            var selection = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title("Wybierz sale:")
+                .AddChoices(rooms));
+
+            var action = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title("Wybierz działanie")
+                .AddChoices(new[] {"Przegląd sali", "Zaplanuj film", "Zobacz historię filmów"}));
+        }
+
+        void RoomReview(Database _database, string _selection)
+        {
+            Console.SetCursorPosition(0, 13);
+
+            List<Room> list = _database.RoomList;
+            Dictionary<string,string> sala_film = new Dictionary<string,string>();
+            int col = 20, rows = 18;
+
+            Grid roomgrid = new Grid();
+            roomgrid.Expand();
+            roomgrid.Centered();
+
+            Markup taken = new Markup("{ [yellow]X[/] }");
+            Markup free = new Markup("{  }");
+            Markup broken = new Markup("{ [Red]B[/] }");
+
+            Room room = list.Find
+
+            for (int i = 0; i < list.Count; i++)
+            {
+
+            }
+
         }
     }
 }
