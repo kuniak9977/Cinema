@@ -17,8 +17,7 @@ namespace Cinema
             Console.CursorVisible = false;
             string path = "CinemaDB.json";
 
-            Database database = new Database();
-            database = database.LoadOr
+            Database database = LoadOrCreateDatabase(path);
 
             //Testowanie dodania filmu do bazy
             /*
@@ -159,7 +158,18 @@ namespace Cinema
             }
         }
 
-        
+        Database LoadOrCreateDatabase(string _path)
+        {
+            if (!File.Exists(_path))
+            {
+                return new Database();
+            }
+
+            string json = File.ReadAllText(_path);
+            var option = new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, PropertyNameCaseInsensitive = true };
+
+            return JsonSerializer.Deserialize<Database>(json, option);
+        }
 
         void SaveDatabase(Database _database, string _path)
         {

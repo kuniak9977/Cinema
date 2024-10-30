@@ -28,19 +28,6 @@ namespace Cinema
             employeeRole = new List<KeyValuePair<Employee, string>>();
         }
 
-        void LoadOrCreateDatabase(string _path)
-        {
-            if (!File.Exists(_path))
-            {
-                return new Database();
-            }
-
-            string json = File.ReadAllText(_path);
-            var option = new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, PropertyNameCaseInsensitive = true };
-
-            return JsonSerializer.Deserialize<Database>(json, option);
-        }
-
         public void AddEmployee(string _name, string _surname, short _code, string _role)
         {
             var emp = new Employee(_name, _surname, _code);
