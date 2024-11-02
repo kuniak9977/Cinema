@@ -39,17 +39,26 @@ namespace Cinema
             ShowTitlePage();
             string role = ChooseRole();
             int opt;
+            bool work = false;
             while (isWorking)
             {
                 switch (opt = ShowAdminPanel())
                 {
                     case 0:
                         MoviePanelAdm p = new MoviePanelAdm();
-                        isWorking = p.MoviePanel(database);
+                        while (!work)
+                        {
+                            work = p.MoviePanel(database);
+                        }
+                        work = false;
                         break;
                     case 1:
                         RoomPanelAdm r = new RoomPanelAdm();
-                        r.RoomPanel(database);
+                        while (!work)
+                        {
+                            work = r.RoomPanel(database);
+                        }
+                        work = false;
                         break;
                 }
             }

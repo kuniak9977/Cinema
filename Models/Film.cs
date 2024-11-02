@@ -31,10 +31,16 @@ namespace Cinema.Models
 
         public Film() { }
 
-        public override string ToString()
+        public string ToString(int _time)
         {
-            return $"Nazwa: {name}, Opis: {description}, Gatunek: {type}";
+            return $"Nazwa: {name}, Czas trwania: {WriteFilmLength(_time)}, Gatunek: {type}";
         }
-
+        public string WriteFilmLength(int _sec)
+        {
+            int M = (_sec / 60) % 60;
+            int S = _sec % 60;
+            int H = M / 60;
+            return $"{H}:{M}:{S}";
+        }
     }
 }

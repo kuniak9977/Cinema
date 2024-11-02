@@ -12,7 +12,7 @@ namespace Cinema
     {
         public RoomPanelAdm() { }
 
-        public void RoomPanel(Database _database)
+        public bool RoomPanel(Database _database)
         {
             Console.SetCursorPosition(0, 13);
             ClearConsolepart(13, 30);
@@ -25,11 +25,15 @@ namespace Cinema
             {
                 rooms[i++] = room.Name;
             }
-
-            var selection = AnsiConsole.Prompt(
+            
+            string selection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("Wybierz sale:")
-                .AddChoices(rooms));
+                .AddChoices(rooms)
+                .AddChoices(new[] {"Powrót"}));
+
+            if (selection == "Powrót")
+                return true;
 
             var action = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -42,8 +46,11 @@ namespace Cinema
                     RoomReview(_database, selection);
                     break;
                 case "Zaplanuj film":
+                    PlanMovie(_database, selection);
                     break;
             }
+
+            return false;
         }
 
         void RoomReview(Database _database, string _selection)
@@ -62,6 +69,7 @@ namespace Cinema
             Markup taken = new Markup("{[yellow]X[/]}");
             Markup free = new Markup("{ }");
             Markup broken = new Markup("{[Red]B[/]}");
+            Markup empty = new Markup(" ");
 
             Room room = list.Find(r => r.Name == _selection);
 
@@ -80,20 +88,25 @@ namespace Cinema
                 insertRow[21] = new Markup("");
                 for (int j = 1; j < col - 1; j++)
                 {
-                    if (room.States[checkedSeats] == Room.State.Free)
+                    if (checkedSeats < room.ChairsQuantity)
                     {
-                        insertRow[j] = free;
-                    }
-                    else if (room.States[checkedSeats] == Room.State.Taken)
-                    {
-                        insertRow[j] = taken;
-                    }
-                    else
-                    {
-                        insertRow[j] = broken;
-                    }
-                    checkedSeats++;
-                    quantity--;
+                        if (room.States[checkedSeats] == Room.State.Free)
+                        {
+                            insertRow[j] = free;
+                        }
+                        else if (room.States[checkedSeats] == Room.State.Taken)
+                        {
+                            insertRow[j] = taken;
+                        }
+                        else if (room.States[checkedSeats] == Room.State.Broken)
+                        {
+                            insertRow[j] = broken;
+                        }
+                        checkedSeats++;
+                        quantity--;
+                    } else
+                    { insertRow[j] = empty;}
+                    
                 }
 
                 roomgrid.AddRow(insertRow);
@@ -101,6 +114,10 @@ namespace Cinema
             }
 
             AnsiConsole.Write(roomgrid);
+            ShowPlannedMovies(_selection, _database.Sala_film);
+            Console.WriteLine();
+            AnsiConsole.Write(new Markup("[Red]Naciśnij dowolny przycisk aby kontynuować![/]"));
+            Console.ReadKey();
         }
 
         void ClearConsolepart(int _oldY, int _newY)
@@ -112,6 +129,45 @@ namespace Cinema
                 Console.Write(new string(' ', width));
             }
             Console.SetCursorPosition(0, _oldY);
+        }
+
+        void PlanMovie(Database _database, string _selection)
+        {
+            List<Film> films = _database.FilmsList;
+            string[] filmy = new string[films.Count];
+            short i = 0;
+            foreach (Film film in films)
+            {
+                filmy[i++] = film.ToString(film.LengthSec);
+            }
+
+            var movieToAddToRoom = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title("Wybierz film który chcesz dodać do kolejki:")
+                .AddChoices(filmy));
+
+            _database.AddMovieToRoom(_selection, movieToAddToRoom);
+            /*
+            if (added)
+                AnsiConsole.Write(new Markup("[Green]Udało się dodać film do kolejki odtwarzania[/]"));
+            else
+                AnsiConsole.Write(new Markup("[Red]Nie udało się dodać filmu. Wystąpił błąd![/]"));*/
+        }
+
+        void ShowPlannedMovies(string _room, Dictionary<string, List<string>> _sala_film)
+        {
+            if (_sala_film.ContainsKey(_room))
+            {
+                string[] plannedMovies = _sala_film[_room].ToArray();
+                var grid = new Grid();
+                grid.AddColumn();
+                grid.AddRow(plannedMovies);
+                AnsiConsole.Write(grid);
+            }
+            else
+            {
+                Console.WriteLine("Brak zaplanowanych filmów dla tej sali.");
+            }
         }
     }
 }

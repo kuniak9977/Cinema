@@ -14,18 +14,19 @@ namespace Cinema
         private List<Film> filmsList;
         private List<Room> roomList;
         private List<KeyValuePair<Employee, string>> employeeRole;
-        private Dictionary<string, string> sala_film = new Dictionary<string, string>();
+        private Dictionary<string, List<string>> sala_film;
 
         public List<Film> FilmsList { get => filmsList; set => filmsList = value; }
         public List<Room> RoomList { get => roomList; set => roomList = value; }
         public List<KeyValuePair<Employee,string>> EmployeeRole { get => employeeRole; set => employeeRole = value; }
-        public Dictionary<string,string> Sala_film { get => sala_film; set => sala_film = value; }
+        public Dictionary<string,List<string>> Sala_film { get => sala_film; set => sala_film = value; }
 
         public Database()
         {
             filmsList = new List<Film>();
             roomList = new List<Room>();
             employeeRole = new List<KeyValuePair<Employee, string>>();
+            sala_film = new Dictionary<string, List<string>>();
         }
 
         public void AddEmployee(string _name, string _surname, short _code, string _role)
@@ -37,6 +38,13 @@ namespace Cinema
         public void AddFilm(Film _film)
         {
             filmsList.Add(_film);
+        }
+        public void AddMovieToRoom(string _room, string _movie)
+        {
+            if (sala_film.ContainsKey(_room))
+                sala_film[_room].Add(_movie);
+            else
+                sala_film[_room] = new List<string> { _movie };
         }
 
         public void AddRoom(Room _room)
