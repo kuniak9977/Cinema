@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Cinema.Models;
+using static Cinema.Models.Employee;
 
 namespace Cinema
 {
@@ -13,26 +14,26 @@ namespace Cinema
     {
         private List<Film> filmsList;
         private List<Room> roomList;
-        private List<KeyValuePair<Employee, string>> employeeRole;
+        private List<Employee> employeeList;
         private Dictionary<string, List<string>> sala_film;
 
         public List<Film> FilmsList { get => filmsList; set => filmsList = value; }
         public List<Room> RoomList { get => roomList; set => roomList = value; }
-        public List<KeyValuePair<Employee,string>> EmployeeRole { get => employeeRole; set => employeeRole = value; }
+        public List<Employee> EmployeeList { get => employeeList; set => employeeList = value; }
         public Dictionary<string,List<string>> Sala_film { get => sala_film; set => sala_film = value; }
 
         public Database()
         {
             filmsList = new List<Film>();
             roomList = new List<Room>();
-            employeeRole = new List<KeyValuePair<Employee, string>>();
+            employeeList = new List<Employee>();
             sala_film = new Dictionary<string, List<string>>();
         }
 
-        public void AddEmployee(string _name, string _surname, short _code, string _role)
+        public void AddEmployee(string _name, string _surname, short _code, int _role)
         {
-            var emp = new Employee(_name, _surname, _code);
-            employeeRole.Add(KeyValuePair.Create(emp, _role));
+            var emp = new Employee(_name, _surname, _code, _role);
+            SortByRole(employeeList);
         }
 
         public void AddFilm(Film _film)

@@ -120,7 +120,7 @@ namespace Cinema
             Console.ReadKey();
         }
 
-        void ClearConsolepart(int _oldY, int _newY)
+        public void ClearConsolepart(int _oldY, int _newY)
         {
             Console.SetCursorPosition(0, _oldY);
             int width = Console.WindowWidth;
