@@ -3,6 +3,7 @@ using Spectre.Console;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,7 +52,7 @@ namespace Cinema
                     AddWorkerToEmployee(_employers);
                     break;
                 case "Przeglądaj bazę":
-
+                    EmployeeDatabaseReview(_employers);
                     break;
                 case "Podgląd hierarchii":
 
@@ -82,38 +83,50 @@ namespace Cinema
             return _tree;
         }
 
+        void EmployeeDatabaseReview(List<Employee> _list)
+        {
+            ClearConsolepart(13,40);
+            var table = new Table();
+            table.Title("Lista zatrudnionych pracowników");
+            table.Border(TableBorder.Markdown);
+            table.Expand();
+            table.Centered();
+
+            TableColumn[] columns = { new TableColumn(new Markup($"[yellow]Imię[/]")), new TableColumn(new Markup($"[yellow]Nazwisko[/]")), new TableColumn(new Markup($"[yellow]Stanowisko[/]")) };
+            table.AddColumns(columns);
+
+            foreach (Employee e in _list)
+            {
+                table.AddRow($"{e.Name}", $"{e.Surname}", $"{e.Role}");
+            }
+
+            AnsiConsole.Write(table);
+        }
+
         void AddWorkerToEmployee(List<Employee> _list)
         {
-            Employee[] workers = _list.ToArray();
-            string[] strings = new string[workers.Length];
-            for (int i = 0; i < _list.Count; i++)
-            {
-                strings[i] = workers[i].ToString();
-            }
-            int y = Console.CursorTop;
-            string choosenWorker = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                .Title("Wybierz pracownika do którego dodasz podwładnego:")
-                .AddChoices(strings));
-            ClearConsolepart(y, y + 20);
+            Employee emp = ChooseEmploye(_list, "Wybierz pracownika do którego dodasz podwładnych:");
+
+            string[] strings = EmployeToStringArray(_list);
+            string empName = emp.ToString();
 
             var multiSelection = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
-                .Title($"Przydzielasz pracowników do [red]{choosenWorker}[/]")
+                .Title($"Przydzielasz pracowników do [red]{empName}[/]")
                 .PageSize(10)
                 .InstructionsText(
                     "Spacja - wybierz pracownika" + 
                     "Enter - zatwierdź wybór")
-                .AddChoices(strings.SkipWhile(s => s.StartsWith(choosenWorker))));
+                .AddChoices(strings.SkipWhile(s => s.StartsWith(empName))));
 
-            Employee toAddEmployees = _list.Find(s => s.NormalizedName == choosenWorker);
             List<Employee> listOfAddingEmp = new List<Employee>();
 
             foreach (string s in multiSelection)
             {
-                s.ToUpper();
-                Employee e = _list.Find(x => x.NormalizedName == s);
-                toAddEmployees.AddToList(e);
+                string tmp = s.ToUpper();
+                string text = tmp.Split('-')[0].Trim();
+                Employee e = _list.Find(x => x.NormalizedName == text);
+                emp.AddToList(e);
             }
 
         }
@@ -134,28 +147,54 @@ namespace Cinema
             switch (role)
             {
                 case "Nieprzydzielony":
-                    r = 0;
+                    r = 5;
                     break;
                 case "Dyrektor":
-                    r = 1;
+                    r = 0;
                     break;
                 case "Kierownik":
-                    r = 2;
+                    r = 1;
                     break;
                 case "Menedżer":
-                    r = 3;
+                    r = 2;
                     break;
                 case "Specjalista":
-                    r = 4;
+                    r = 3;
                     break;
                 case "Pracownik":
-                    r = 5;
+                    r = 4;
                     break;
                 default: r = 0; break;
             }
 
             Employee employee = new Employee(name, surname, code, r);
             _list.Add(employee);
+        }
+
+        Employee ChooseEmploye(List<Employee> _list, string _promptTitle)
+        {
+            string[] strings = EmployeToStringArray(_list);
+            string choosenWorker = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title($"{_promptTitle}")
+                .AddChoices(strings));
+
+            choosenWorker = choosenWorker.ToUpper();
+            string text = choosenWorker.Split('-')[0].Trim();
+
+            Employee emp = _list.Find(s => s.NormalizedName == text);
+            return emp;
+        }
+
+        string[] EmployeToStringArray(List<Employee> _list)
+        {
+            string[] strings = new string[_list.Count];
+            int i = 0;
+            foreach (Employee emp in _list)
+            {
+                strings[i++] = emp.ToString();
+            }
+            return strings;
         }
 
         public void ClearConsolepart(int _oldY, int _newY)
