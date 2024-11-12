@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using static Cinema.Models.Employee;
@@ -18,11 +19,10 @@ namespace Cinema
         public bool WorkersReview(List<Employee> _employers)
         {
             SortByRole(_employers);
-
             string action = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("Akcje do wybrania w tym panelu")
-                .AddChoices("Dodaj nowego pracownika", "Dodaj podwładnego do pracownika", "Przeglądaj bazę", "Podgląd hierarchii", "Powrót"));
+                .AddChoices("Dodaj nowego pracownika", "Dodaj podwładnego do pracownika", "Przeglądaj bazę", "Powrót"));
 
             switch (action)
             {
@@ -34,9 +34,6 @@ namespace Cinema
                     break;
                 case "Przeglądaj bazę":
                     EmployeeDatabaseReview(_employers);
-                    break;
-                case "Podgląd hierarchii":
-
                     break;
                 case "Powrót":
                     return true;
@@ -64,11 +61,16 @@ namespace Cinema
             }
 
             AnsiConsole.Write(table);
+            Console.WriteLine("Wciśnij dowolny przycisk, aby wrócić...");
+            Console.ReadLine();
+            ClearConsolepart(13, 30);
         }
 
         void AddWorkerToEmployee(List<Employee> _list)
         {
             Employee emp = ChooseEmploye(_list, "Wybierz pracownika do którego dodasz podwładnych:");
+            if (emp == null)
+                return;
             Occupation oc = emp.Role;
             List<Employee> newList = new List<Employee>();
             foreach (Employee e in _list)
@@ -108,12 +110,20 @@ namespace Cinema
 
         void AddEmployeeToDatabase(List<Employee> _list)
         {
-            Console.WriteLine("Podaj imię pracownika:");
-            string name = Console.ReadLine();
-            Console.WriteLine("Podaj nazwisko pracownika:");
-            string surname = Console.ReadLine();
-            Console.WriteLine("Stwórz 4-cyfrowy indywidualy kod pracownika");
-            short code =short.Parse(Console.ReadLine());
+            string name, surname;
+            int code;
+            do
+                Console.WriteLine("Podaj imię pracownika:");
+            while ((name = Console.ReadLine()) == string.Empty);
+            do
+                Console.WriteLine("Podaj nazwisko pracownika:");
+            while ((surname = Console.ReadLine()) == string.Empty);
+            do
+            {
+                Console.WriteLine("Stwórz 4-cyfrowy indywidualy kod pracownika");
+                code = short.Parse(Console.ReadLine());
+            } while (!(code.ToString().Length == 4));
+            
             string role = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("Wybierz stanowisko:")
@@ -142,8 +152,11 @@ namespace Cinema
                 default: r = 0; break;
             }
 
-            Employee employee = new Employee(name, surname, code, r);
+            Employee employee = new Employee(name, surname, (short)code, r);
             _list.Add(employee);
+            Console.WriteLine("Dodano poprawnie pracownika.");
+            Console.ReadLine();
+            ClearConsolepart(13, Console.WindowHeight);
         }
 
         Employee ChooseEmploye(List<Employee> _list, string _promptTitle)

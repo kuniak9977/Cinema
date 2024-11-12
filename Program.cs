@@ -17,8 +17,13 @@ namespace Cinema
             Console.CursorVisible = false;
             string path = "CinemaDB.json";
             bool isWorking = true;
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.InputEncoding = System.Text.Encoding.UTF8;
+            bool work = false;
+            bool accesGranted = false;
+            Console.WindowHeight = 50;
+            Console.WindowWidth = 160;
+
+            Console.OutputEncoding = System.Text.Encoding.Unicode;
+            Console.InputEncoding = System.Text.Encoding.Unicode;
 
             Database database = LoadOrCreateDatabase(path);
 
@@ -41,12 +46,16 @@ namespace Cinema
             SaveDatabase(database ,path);
             */
             ShowTitlePage();
-            string role = ChooseRole();
-            int opt;
-            bool work = false;
+            
+
+            while (!accesGranted)
+            {
+                accesGranted = InsertCode(database.EmployeeList);
+            }
+
             while (isWorking)
             {
-                switch (opt = ShowAdminPanel())
+                switch (ShowAdminPanel())
                 {
                     case 0:
                         MoviePanelAdm p = new MoviePanelAdm();
@@ -77,23 +86,7 @@ namespace Cinema
             }
             
             SaveDatabase(database, path);
-            /*
-            if (role == "Gość")
-            {
-                ShowRepertoireCalendar();
-            }
-            else if (role == "Pracownik")
-            {
-                bool accessGranted = PromptForEmployeeCode();
-                if (accessGranted)
-                {
-                    ShowAdminPanel();
-                }
-                else
-                {
-                    AnsiConsole.Markup("[red]Niepoprawny kod dostępu![/]");
-                }
-            }*/
+
         }
 
         void ShowAsciiArt()
@@ -125,65 +118,15 @@ namespace Cinema
             AnsiConsole.Write(menu);
         }
 
-        string ChooseRole()
+        bool InsertCode(List<Employee> _list)
         {
-            // Obliczanie szerokości konsoli dla wyśrodkowania
-            int width = Console.WindowWidth;
-            string[] options = { "Gość", "Pracownik" };
-            int selectedOption = 0;
+            ClearConsolepart(13, 30);
+            string text = "Wprowadź kod pracownika aby wejść do menadżera";
+            int consoleWidth = Console.WindowWidth;
+            Console.SetCursorPosition((consoleWidth/2) - (text.Length/2), Console.CursorTop );
+            Console.Write(text + "\n");
+            return PromptForEmployeeCode(_list);
 
-            // Zapamiętaj pozycję kursora, aby czyścić tylko opcje wyboru
-            int startCursorTop = Console.CursorTop;
-
-            // Pętla wyboru
-            while (true)
-            {
-                // Ustawienie kursora na pozycję początkową
-                Console.SetCursorPosition(0, startCursorTop);
-
-                // Wyświetlenie opcji wyboru
-                for (int i = 0; i < options.Length; i++)
-                {
-                    // Czyszczenie aktualnej linii
-                    Console.SetCursorPosition(0, startCursorTop + i);
-                    Console.Write(new string(' ', width));
-
-                    // Wyśrodkowanie każdej opcji
-                    string option = options[i];
-                    Console.SetCursorPosition((width - option.Length) / 2, startCursorTop + i);
-
-                    // Wyróżnienie wybranej opcji
-                    if (i == selectedOption)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write($"> {option} <");
-                        Console.ResetColor();
-                    }
-                    else
-                    {
-                        Console.Write(option);
-                    }
-                }
-
-                // Obsługa klawiszy strzałek i Enter
-                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
-                if (keyInfo.Key == ConsoleKey.UpArrow)
-                {
-                    selectedOption = (selectedOption == 0) ? options.Length - 1 : selectedOption - 1;
-                }
-                else if (keyInfo.Key == ConsoleKey.DownArrow)
-                {
-                    selectedOption = (selectedOption == options.Length - 1) ? 0 : selectedOption + 1;
-                }
-                else if (keyInfo.Key == ConsoleKey.Enter)
-                {
-                    // Zwracamy wybraną opcję po naciśnięciu Enter
-                    Console.SetCursorPosition(0, startCursorTop);
-                    Console.Write(new string(' ', width * 10));
-                    Console.SetCursorPosition(0, startCursorTop);
-                    return options[selectedOption];
-                }
-            }
         }
 
         Database LoadOrCreateDatabase(string _path)
@@ -209,21 +152,20 @@ namespace Cinema
             File.WriteAllText(_path, json);
         }
 
-        bool PromptForEmployeeCode()
+        bool PromptForEmployeeCode(List<Employee> _list)
         {
             // Wyświetlenie promptu do wpisania kodu
-            string code = AnsiConsole.Prompt(
-                new TextPrompt<string>("Podaj kod pracownika: ").Secret());
+            int code = AnsiConsole.Prompt(
+                new TextPrompt<int>("Podaj kod pracownika: ").Secret());
 
-            // Weryfikacja kodu
-            if (code == "1234") // przykładowy kod
+            foreach (Employee emp in _list)
             {
-                return true;
+                if (emp.EmployeePrivateCode == code)
+                    return true;
             }
-            else
-            {
-                return false;
-            }
+            Console.WriteLine();
+            AnsiConsole.Write(new Markup($"[Red]Niepoprawny kod. Spróbuj pownownie![/]"));
+            return false;
         }
 
         int ShowAdminPanel()
@@ -238,20 +180,16 @@ namespace Cinema
 
             Markup moviePanel = new Markup("Możliwe opcje do zrobienia w tym panelu:\n" +
                 "Dodawanie filmow do bazy\n" +
-                "Usuwanie filmow\n" +
                 "Przegląd bazy.");
 
             Markup roomPanel = new Markup("Możliwe opcje do zrobienia w tym panelu:\n" +
-                "Dodawanie sal\n" +
-                "Usuwanie sal\n" +
-                "Przegląd bazy" +
-                "Modyfikowanie");
+                "Dodawanie filmów do odworzenia\n" +
+                "Przegląd stanu sal");
 
             Markup workersPanel = new Markup("Możliwe opcje do zrobienia w tym panelu:\n" +
                 "Dodawanie pracowników\n" +
-                "Usuwanie pracowników\n" +
-                "Przegląd bazy" +
-                "Modyfikowanie zapisów");
+                "Przegląd bazy\n" +
+                "Dodawanie podwładnych");
 
             var title = new TableTitle("Cinema Manager Panel");
             title.SetStyle(Style.WithForeground(Color.Green));
@@ -306,6 +244,8 @@ namespace Cinema
                 mainTable.AddRow(tablePanelMovie, tablePanelRoom, tablePanelEmployers);
 
                 AnsiConsole.Write(mainTable);
+                Console.WriteLine();
+                Console.WriteLine("Aby wyjść kliknij ESC...");
 
                 key = Console.ReadKey();
                 if (key.Key == ConsoleKey.Escape)
