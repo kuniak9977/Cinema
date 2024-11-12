@@ -22,12 +22,6 @@ namespace Cinema
 
             Database database = LoadOrCreateDatabase(path);
 
-            foreach (Employee e in database.EmployeeList)
-            {
-                e.NormalizedName = e.NormalizeName(e.Name, e.Surname);
-                e.ListOfEmployees = new List<Employee>();
-            }
-
             //Employee employee = new Employee("Młocigrzyb", "Ćwik", 1111, 2);
             //Console.WriteLine(employee.ToString());
             //Testowanie dodania filmu do bazy

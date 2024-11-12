@@ -161,7 +161,9 @@ namespace Cinema
                 string[] plannedMovies = _sala_film[_room].ToArray();
                 var grid = new Grid();
                 grid.AddColumn();
-                grid.AddRow(plannedMovies);
+                foreach (string s in plannedMovies)
+                    grid.AddRow(s);
+
                 AnsiConsole.Write(grid);
             }
             else

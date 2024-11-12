@@ -19,25 +19,6 @@ namespace Cinema
         {
             SortByRole(_employers);
 
-            string name = string.Empty;
-
-            Tree root = new Tree("ROOT");
-            Employee emp = _employers.First();
-
-            //root = DFSWritingOutWorkers(emp, root);
-            /*
-            foreach (Employee e in _employers)
-            {  
-                name = e.Name + e.Surname;
-                if (e.Role == Employee.Occupation.Menedżer)
-                    root = new Tree(new Markup($"[seagreen1_1]{e.Name}[/]"));
-            }*/
-
-            AnsiConsole.Write(root);
-
-
-
-
             string action = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("Akcje do wybrania w tym panelu")
@@ -65,24 +46,6 @@ namespace Cinema
             return false;
         }
 
-        Tree DFSWritingOutWorkers(Employee _employee, Tree _tree)
-        {
-            if (_tree == null)
-                _tree = new Tree($"{_employee.Name} " + $"{_employee.Surname}");
-
-            List<Employee> el = _employee.ListOfEmployees;
-            if (el == null)
-                return _tree;
-            foreach (Employee e in el)
-            {
-                _tree = DFSWritingOutWorkers(e, _tree);
-            }
-
-            if (_employee == null)
-                return _tree;
-            return _tree;
-        }
-
         void EmployeeDatabaseReview(List<Employee> _list)
         {
             ClearConsolepart(13,40);
@@ -106,8 +69,17 @@ namespace Cinema
         void AddWorkerToEmployee(List<Employee> _list)
         {
             Employee emp = ChooseEmploye(_list, "Wybierz pracownika do którego dodasz podwładnych:");
+            Occupation oc = emp.Role;
+            List<Employee> newList = new List<Employee>();
+            foreach (Employee e in _list)
+            {
+                if (e == emp)
+                    continue;
+                if (oc == (e.Role - 1))
+                    newList.Add(e);
+            }
 
-            string[] strings = EmployeToStringArray(_list);
+            string[] strings = EmployeToStringArray(newList);
             string empName = emp.ToString();
 
             var multiSelection = AnsiConsole.Prompt(
@@ -118,6 +90,9 @@ namespace Cinema
                     "Spacja - wybierz pracownika" + 
                     "Enter - zatwierdź wybór")
                 .AddChoices(strings.SkipWhile(s => s.StartsWith(empName))));
+
+            if (multiSelection.Contains("Powrót"))
+                return;
 
             List<Employee> listOfAddingEmp = new List<Employee>();
 
@@ -188,12 +163,13 @@ namespace Cinema
 
         string[] EmployeToStringArray(List<Employee> _list)
         {
-            string[] strings = new string[_list.Count];
+            string[] strings = new string[_list.Count + 1];
             int i = 0;
             foreach (Employee emp in _list)
             {
                 strings[i++] = emp.ToString();
             }
+            strings[_list.Count] = "Powrót";
             return strings;
         }
 
