@@ -17,9 +17,13 @@ namespace Cinema
             Console.CursorVisible = false;
             string path = "CinemaDB.json";
             bool isWorking = true;
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.InputEncoding = System.Text.Encoding.UTF8;
 
             Database database = LoadOrCreateDatabase(path);
 
+            //Employee employee = new Employee("Młocigrzyb", "Ćwik", 1111, 2);
+            //Console.WriteLine(employee.ToString());
             //Testowanie dodania filmu do bazy
             /*
             var film = new Film("Pogoń za oceną", "Naj naj film o utracie chęci do życia", "Dramat", 6490, 4.5);
@@ -39,17 +43,35 @@ namespace Cinema
             ShowTitlePage();
             string role = ChooseRole();
             int opt;
+            bool work = false;
             while (isWorking)
             {
                 switch (opt = ShowAdminPanel())
                 {
                     case 0:
                         MoviePanelAdm p = new MoviePanelAdm();
-                        isWorking = p.MoviePanel(database);
+                        while (!work)
+                        {
+                            work = p.MoviePanel(database);
+                        }
+                        work = false;
                         break;
                     case 1:
                         RoomPanelAdm r = new RoomPanelAdm();
-                        r.RoomPanel(database);
+                        while (!work)
+                        {
+                            work = r.RoomPanel(database);
+                        }
+                        work = false;
+                        break;
+                    case 2:
+                        WorkersPanel w = new WorkersPanel();
+                        while (!work)
+                            work = w.WorkersReview(database.EmployeeList);
+                        work = false;
+                        break;
+                    case 3:
+                        isWorking = false;
                         break;
                 }
             }
@@ -286,6 +308,8 @@ namespace Cinema
                 AnsiConsole.Write(mainTable);
 
                 key = Console.ReadKey();
+                if (key.Key == ConsoleKey.Escape)
+                    return 3;
                 if (key.Key == ConsoleKey.RightArrow)
                     selectedOption = (selectedOption + 1) % option.Length;
                 else if (key.Key == ConsoleKey.LeftArrow)

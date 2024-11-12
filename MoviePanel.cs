@@ -31,7 +31,7 @@ namespace Cinema
 
             foreach (Film film in films)
             {
-                movies.AddRow($"{film.Name}", $"{film.Description}", $"{film.Type}", $"{WriteFilmLength(film.LengthSec)}", $"{film.Points}/10");
+                movies.AddRow($"{film.Name}", $"{film.Description}", $"{film.Type}", $"{film.WriteFilmLength(film.LengthSec)}", $"{film.Points}/10");
             }
 
             AnsiConsole.Write(movies);
@@ -73,7 +73,7 @@ namespace Cinema
             string type = Console.ReadLine();
             Console.WriteLine("Czas trwania w sekundach");
             int length = int.Parse(Console.ReadLine());
-            Console.WriteLine("Oceny filmu");
+            Console.WriteLine("Oceny filmu (Używaj przecinku)");
             double points = double.Parse(Console.ReadLine());
             Film newFilm = new Film(name, desc, type, length, points);
             _database.AddFilm(newFilm);
@@ -94,14 +94,6 @@ namespace Cinema
                 return true;
             }
             return false;
-        }
-
-        string WriteFilmLength(int _sec)
-        {
-            int M = (_sec / 60) % 60;
-            int S = _sec % 60;
-            int H = M / 60;
-            return $"{H}:{M}:{S}";
         }
 
         void ClearConsolepart(int _oldY, int _newY)
