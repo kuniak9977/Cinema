@@ -22,7 +22,7 @@ namespace Cinema
             string action = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("Akcje do wybrania w tym panelu")
-                .AddChoices("Dodaj nowego pracownika", "Dodaj podwładnego do pracownika", "Przeglądaj bazę", "Powrót"));
+                .AddChoices("Dodaj nowego pracownika", "Dodaj podwładnego do pracownika","Modyfikuj rekord pracownika", "Przeglądaj bazę", "Powrót"));
 
             switch (action)
             {
@@ -31,6 +31,9 @@ namespace Cinema
                     break;
                 case "Dodaj podwładnego do pracownika":
                     AddWorkerToEmployee(_employers);
+                    break;
+                case "Modyfikuj rekord pracownika":
+                    ModifyEmploye(_employers);
                     break;
                 case "Przeglądaj bazę":
                     EmployeeDatabaseReview(_employers);
@@ -66,6 +69,44 @@ namespace Cinema
             ClearConsolepart(13, 30);
         }
 
+        void ModifyEmploye(List<Employee> _list)
+        {
+            ClearConsolepart (12, Console.WindowHeight);
+            Employee emp = ChooseEmploye(_list, "Wybierz pracownika do modyfikacji w bazie:");
+            int idx = _list.IndexOf(emp);
+
+            var grid = new Grid();
+            grid.AddColumn();
+            grid.AddColumn();
+
+            grid.AddRow(new Markup($"[purple]Stare dane[/]"), new Markup($"[fuchsia]Nowe dane[/]"));
+            grid.Centered();
+            grid.Expand();
+
+            grid.AddRow($"Imie:{emp.Name}","xxx");
+            grid.AddRow($"Nazwisko:{emp.Surname}","xxx");
+            grid.AddRow($"Stanowisko:{emp.Role}","xxx");
+            grid.AddRow($"Prywatny kod:{emp.EmployeePrivateCode}","xxx");
+
+            AnsiConsole.Write(grid);
+            Console.WriteLine("Wstaw x jeśli nie chcesz zmieniać");
+            Console.CursorVisible = true;
+            Console.SetCursorPosition(28,13);
+            var newName = AnsiConsole.Prompt(
+                new TextPrompt<string>(""));
+            Console.SetCursorPosition(28, 14);
+            var newSurname = AnsiConsole.Prompt(
+                new TextPrompt<string>(""));
+            Console.SetCursorPosition(28, 15);
+            var newRole = AnsiConsole.Prompt(
+                new TextPrompt<string>(""));
+            Console.SetCursorPosition(28, 16);
+            var newCode = AnsiConsole.Prompt(
+                new TextPrompt<string>(""));
+
+
+
+        }
         void AddWorkerToEmployee(List<Employee> _list)
         {
             Employee emp = ChooseEmploye(_list, "Wybierz pracownika do którego dodasz podwładnych:");

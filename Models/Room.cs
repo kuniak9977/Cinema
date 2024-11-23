@@ -54,5 +54,6 @@ namespace Cinema.Models
         {
             return $"Nazwa: {name}, Ilość_miejsc: {chairsQuantity}, Zajętość: {states}";
         }
+
     }
 }

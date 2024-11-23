@@ -17,6 +17,10 @@ namespace Cinema
         private List<Employee> employeeList;
         private Dictionary<string, List<string>> sala_film;
 
+        private List<RoomMovies> moviesInRoom;
+
+
+        public List<RoomMovies> MoviesInRoom { get => moviesInRoom; set => moviesInRoom = value; }
         public List<Film> FilmsList { get => filmsList; set => filmsList = value; }
         public List<Room> RoomList { get => roomList; set => roomList = value; }
         public List<Employee> EmployeeList { get => employeeList; set => employeeList = value; }
@@ -28,6 +32,7 @@ namespace Cinema
             roomList = new List<Room>();
             employeeList = new List<Employee>();
             sala_film = new Dictionary<string, List<string>>();
+            moviesInRoom = new List<RoomMovies>();
         }
 
         public void AddEmployee(string _name, string _surname, short _code, int _role)
@@ -46,6 +51,22 @@ namespace Cinema
                 sala_film[_room].Add(_movie);
             else
                 sala_film[_room] = new List<string> { _movie };
+        }
+        public void AddMovieToRoom(Room _room, string _movie)
+        {
+            Film selected;
+            foreach (Film movie in FilmsList)
+            {
+                if (_movie == movie.Name)
+                    selected = movie;
+                break;
+            }
+
+
+            /*
+            MovieTime tmp = new MovieTime();
+            RoomMovies temp = new RoomMovies();
+            moviesInRoom.Add();*/
         }
 
         public void AddRoom(Room _room)

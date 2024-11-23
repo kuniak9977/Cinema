@@ -38,7 +38,7 @@ namespace Cinema
             var action = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("Wybierz działanie")
-                .AddChoices(new[] { "Przegląd sali", "Zaplanuj film", "Zobacz historię filmów" }));
+                .AddChoices(new[] { "Przegląd sali", "Zaplanuj film"}));
 
             switch (action)
             {
@@ -46,7 +46,7 @@ namespace Cinema
                     RoomReview(_database, selection);
                     break;
                 case "Zaplanuj film":
-                    PlanMovie(_database, selection);
+                    PlanMovie2(_database, selection);
                     break;
             }
 
@@ -116,7 +116,7 @@ namespace Cinema
             AnsiConsole.Write(roomgrid);
             ShowPlannedMovies(_selection, _database.Sala_film);
             Console.WriteLine();
-            AnsiConsole.Write(new Markup("[Red]Naciśnij dowolny przycisk aby kontynuować![/]"));
+            AnsiConsole.Write(new Markup("[Red]Naciśnij ENTER aby kontynuować![/]"));
             Console.ReadKey();
         }
 
@@ -152,6 +152,33 @@ namespace Cinema
                 AnsiConsole.Write(new Markup("[Green]Udało się dodać film do kolejki odtwarzania[/]"));
             else
                 AnsiConsole.Write(new Markup("[Red]Nie udało się dodać filmu. Wystąpił błąd![/]"));*/
+        }
+
+        void PlanMovie2(Database _database, string _selection)
+        {
+            List<Room> rooms = _database.RoomList;
+            List<Film> films = _database.FilmsList;
+            string[] movies = new string[films.Count];
+            short i = 0;
+            Room selectedRoom = null;
+            foreach (Room room in rooms)
+            {
+                if (_selection == room.Name)
+                    selectedRoom = room;
+            }
+            foreach (Film film in films)
+            {
+                movies[i++] = film.ToString(film.LengthSec);
+            }
+            var movieToAddToRoom = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title("Wybierz film który chcesz dodać do kolejki:")
+                .AddChoices(movies));
+
+            TimeInput timeInput = new TimeInput();
+            timeInput.DrawTimeInputPanel();
+
+            //_database.AddMovieToRoom(selectedRoom, movieToAddToRoom, DateTime start);
         }
 
         void ShowPlannedMovies(string _room, Dictionary<string, List<string>> _sala_film)
