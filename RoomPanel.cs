@@ -114,7 +114,7 @@ namespace Cinema
             }
 
             AnsiConsole.Write(roomgrid);
-            ShowPlannedMovies(_selection, _database.Sala_film);
+            ShowPlannedMovies(room, _database.MoviesInRoom);
             Console.WriteLine();
             AnsiConsole.Write(new Markup("[Red]Naciśnij ENTER aby kontynuować![/]"));
             Console.ReadKey();
@@ -131,70 +131,67 @@ namespace Cinema
             Console.SetCursorPosition(0, _oldY);
         }
 
-        void PlanMovie(Database _database, string _selection)
-        {
-            List<Film> films = _database.FilmsList;
-            string[] filmy = new string[films.Count];
-            short i = 0;
-            foreach (Film film in films)
-            {
-                filmy[i++] = film.ToString(film.LengthSec);
-            }
-
-            var movieToAddToRoom = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                .Title("Wybierz film który chcesz dodać do kolejki:")
-                .AddChoices(filmy));
-
-            _database.AddMovieToRoom(_selection, movieToAddToRoom);
-            /*
-            if (added)
-                AnsiConsole.Write(new Markup("[Green]Udało się dodać film do kolejki odtwarzania[/]"));
-            else
-                AnsiConsole.Write(new Markup("[Red]Nie udało się dodać filmu. Wystąpił błąd![/]"));*/
-        }
-
         void PlanMovie2(Database _database, string _selection)
         {
             List<Room> rooms = _database.RoomList;
-            List<Film> films = _database.FilmsList;
-            string[] movies = new string[films.Count];
-            short i = 0;
-            Room selectedRoom = null;
-            foreach (Room room in rooms)
+
+            // Znajdujemy pokój na podstawie nazwy
+            Room selectedRoom = rooms.FirstOrDefault(room => room.Name == _selection);
+
+            if (selectedRoom == null)
             {
-                if (_selection == room.Name)
-                    selectedRoom = room;
+                Console.WriteLine("Nie znaleziono pokoju o podanej nazwie.");
+                return;
             }
-            foreach (Film film in films)
-            {
-                movies[i++] = film.ToString(film.LengthSec);
-            }
-            var movieToAddToRoom = AnsiConsole.Prompt(
+
+            // Pobieramy nazwy filmów dla użytkownika do wyboru
+            var movies = _database.FilmsList.Select(f => f.Name).ToList();
+
+            // Użytkownik wybiera film
+            var movieName = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                .Title("Wybierz film który chcesz dodać do kolejki:")
-                .AddChoices(movies));
+                    .Title("Wybierz film, który chcesz dodać do kolejki:")
+                    .AddChoices(movies));
 
+            // Znajdujemy film na podstawie nazwy
+            Film movieToAddToRoom = _database.GetFilmByName(movieName);
+
+            if (movieToAddToRoom == null)
+            {
+                Console.WriteLine("Nie znaleziono filmu o podanej nazwie.");
+                return;
+            }
+
+            // Użytkownik wybiera czas rozpoczęcia
             TimeInput timeInput = new TimeInput();
-            timeInput.DrawTimeInputPanel();
+            DateTime start = timeInput.DrawTimeInputPanel();
 
-            //_database.AddMovieToRoom(selectedRoom, movieToAddToRoom, DateTime start);
+            // Dodajemy film do pokoju
+            _database.AddMovieToRoom(selectedRoom, movieToAddToRoom, start);
         }
 
-        void ShowPlannedMovies(string _room, Dictionary<string, List<string>> _sala_film)
+        void ShowPlannedMovies(Room _room, List<RoomMovies> _moviesInRoom)
         {
-            if (_sala_film.ContainsKey(_room))
+            // Znajdujemy obiekt RoomMovies dla podanego pokoju
+            var roomMovies = _moviesInRoom.FirstOrDefault(rm => rm.room == _room);
+
+            if (roomMovies != null && roomMovies.movieDuration.Any())
             {
-                string[] plannedMovies = _sala_film[_room].ToArray();
+                // Tworzymy grid do wyświetlania zaplanowanych filmów
                 var grid = new Grid();
-                grid.AddColumn();
-                foreach (string s in plannedMovies)
-                    grid.AddRow(s);
+                grid.AddColumn(); // Kolumna na dane filmu
+
+                foreach (var movieTime in roomMovies.movieDuration)
+                {
+                    var movieInfo = $"Film: {movieTime.movie.Name}, Start: {movieTime.startTime:HH:mm}, Koniec: {movieTime.endTime:HH:mm}";
+                    grid.AddRow(movieInfo);
+                }
 
                 AnsiConsole.Write(grid);
             }
             else
             {
+                // Gdy brak zaplanowanych filmów
                 Console.WriteLine("Brak zaplanowanych filmów dla tej sali.");
             }
         }

@@ -8,9 +8,9 @@ namespace Cinema.Models
 {
     public class RoomMovies
     {
-        Room room;
+        public Room room;
 
-        List<MovieTime> movieDuration;
+        public List<MovieTime> movieDuration;
 
         public RoomMovies(Room _room, MovieTime _movieDuration)
         {

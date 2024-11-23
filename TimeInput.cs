@@ -30,7 +30,7 @@ namespace Cinema
 
         public TimeInput() { }
 
-        public void DrawTimeInputPanel()
+        public DateTime DrawTimeInputPanel()
         {
             int width = Console.WindowWidth;
             int heightPos = Console.CursorTop;
@@ -40,6 +40,11 @@ namespace Cinema
 
             while (true)
             {
+                if (options[0] == 2)
+                    maxValue[1] = 3;
+                else
+                    maxValue[1] = 9;
+
                 Console.SetCursorPosition(0, heightPos);
                 var grid = new Grid();
                 for (int i = 0; i < 7; i++)
@@ -92,12 +97,26 @@ namespace Cinema
                         if (options[option] < 0)
                             options[option] = maxValue[option];
                         break;
+                    case ConsoleKey.Enter:
+                        return ConvertToDateTime(options);
                     default:
                         break;
                 }
 
             }
             
+        }
+
+        DateTime ConvertToDateTime(short[] _time)
+        {
+            string hours = $"{_time[0]}{_time[1]}";
+            string minutes = $"{_time[2]}{_time[3]}";
+            string time = $"{hours}:{minutes}";
+
+            if (DateTime.TryParse(time, out DateTime start))
+                return start;
+
+            return DateTime.Now;
         }
 
         short ChangeValue(short _value, bool _inc)
