@@ -9,7 +9,7 @@ namespace Cinema
         public static void Main(string[] args)
         {
             var program = new Program();
-            program.Run(args);
+            program.Run2(args);
         }
 
         public void Run(string[] args)
@@ -73,10 +73,6 @@ namespace Cinema
                         work = false;
                         break;
                     case 2:
-                        WorkersPanel w = new WorkersPanel();
-                        while (!work)
-                            work = w.WorkersReview(database.EmployeeList);
-                        work = false;
                         break;
                     case 3:
                         isWorking = false;
@@ -87,6 +83,88 @@ namespace Cinema
             SaveDatabase(database, path);
 
         }
+
+        public void Run2(string[] args)
+        {
+            Console.CursorVisible = false;
+            string path = "CinemaDB.json";
+            bool isWorking = true;
+            bool accesGranted = false;
+
+            // Ustawienia konsoli
+            Console.WindowHeight = 50;
+            Console.WindowWidth = 160;
+            Console.OutputEncoding = System.Text.Encoding.Unicode;
+            Console.InputEncoding = System.Text.Encoding.Unicode;
+
+            // Załaduj lub stwórz bazę danych
+            Database database = LoadOrCreateDatabase(path);
+
+            
+            database.AddEmployee("Młocigrzyb", "Ćwik", 1111, 2);
+            //database.AddEmployee("Kurzonoga", "Penis", 1221, 2);
+            //Testowanie dodania filmu do bazy
+            var film = new Film("Pogoń za oceną", "Naj naj film o utracie chęci do życia", "Dramat", 6490, 4.5);
+            database.AddFilm(film);
+            var test = new Room("Sala100", 180);
+            var test2 = new Room("Sala343", 134);
+            var test3 = new Room("Sala234", 256);
+            var test4 = new Room("Sala13", 80);
+            database.AddRoom(test);
+            //database.AddRoom(test2);
+            //database.AddRoom(test3);
+            //database.AddRoom(test4);
+            //database.AddEmployee("Maria","Kowalska", 1234, 1);
+            
+
+
+            SaveDatabase(database, path);
+            ShowTitlePage();
+
+            // Sprawdź kod pracownika przed dostępem do panelu
+            while (!accesGranted)
+            {
+                accesGranted = InsertCode(database.EmployeeList);
+            }
+
+            // Kontrolery MVC
+            var employeeController = new Cinema.Controllers.EmployeeController(database.EmployeeList, new Cinema.Views.EmployeeView());
+            var moviePanel = new MoviePanelAdm();
+            var roomPanel = new RoomPanelAdm();
+
+            // Główna pętla
+            while (isWorking)
+            {
+                switch (ShowAdminPanel())
+                {
+                    case 0: // Panel filmów
+                        HandlePanel(() => moviePanel.MoviePanel(database));
+                        break;
+                    case 1: // Panel sal kinowych
+                        HandlePanel(() => roomPanel.RoomPanel(database));
+                        break;
+                    case 2: // Panel pracowników
+                        employeeController.Run();
+                        break;
+                    case 3: // Wyjście
+                        isWorking = false;
+                        break;
+                }
+            }
+
+            // Zapisz zmiany w bazie danych
+            SaveDatabase(database, path);
+        }
+
+        private void HandlePanel(Func<bool> panelAction)
+        {
+            bool work = false;
+            while (!work)
+            {
+                work = panelAction();
+            }
+        }
+
 
         void ShowAsciiArt()
         {

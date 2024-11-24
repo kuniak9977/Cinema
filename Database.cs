@@ -34,12 +34,11 @@ namespace Cinema
             //sala_film = new Dictionary<string, List<string>>();
             moviesInRoom = new List<RoomMovies>();
         }
-
+        
         public void AddEmployee(string _name, string _surname, short _code, int _role)
         {
             var emp = new Employee(_name, _surname, _code, _role);
             EmployeeList.Add(emp);
-            SortByRole(employeeList);
         }
 
         public void AddFilm(Film _film)
