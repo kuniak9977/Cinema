@@ -33,7 +33,7 @@ namespace Cinema
                     AddWorkerToEmployee(_employers);
                     break;
                 case "Modyfikuj rekord pracownika":
-                    ModifyEmploye(_employers);
+                    ModifyEmployee(_employers);
                     break;
                 case "Przeglądaj bazę":
                     EmployeeDatabaseReview(_employers);
@@ -48,7 +48,7 @@ namespace Cinema
 
         void EmployeeDatabaseReview(List<Employee> _list)
         {
-            ClearConsolepart(13,40);
+            ClearConsolePart(13,40);
             var table = new Table();
             table.Title("Lista zatrudnionych pracowników");
             table.Border(TableBorder.Markdown);
@@ -66,12 +66,14 @@ namespace Cinema
             AnsiConsole.Write(table);
             Console.WriteLine("Wciśnij dowolny przycisk, aby wrócić...");
             Console.ReadLine();
-            ClearConsolepart(13, 30);
+            ClearConsolePart(13, 30);
         }
 
-        void ModifyEmploye(List<Employee> _list)
+        void ModifyEmployee(List<Employee> _list)
         {
-            ClearConsolepart (12, Console.WindowHeight);
+            ClearConsolePart(12, Console.WindowHeight);
+
+            // Wybierz pracownika do modyfikacji
             Employee emp = ChooseEmploye(_list, "Wybierz pracownika do modyfikacji w bazie:");
             int idx = _list.IndexOf(emp);
 
@@ -79,33 +81,60 @@ namespace Cinema
             grid.AddColumn();
             grid.AddColumn();
 
-            grid.AddRow(new Markup($"[purple]Stare dane[/]"), new Markup($"[fuchsia]Nowe dane[/]"));
+            grid.AddRow(new Markup($"[purple]Stare dane[/]"));
             grid.Centered();
             grid.Expand();
 
-            grid.AddRow($"Imie:{emp.Name}","xxx");
-            grid.AddRow($"Nazwisko:{emp.Surname}","xxx");
-            grid.AddRow($"Stanowisko:{emp.Role}","xxx");
-            grid.AddRow($"Prywatny kod:{emp.EmployeePrivateCode}","xxx");
+            grid.AddRow($"Imię: {emp.Name}");
+            grid.AddRow($"Nazwisko: {emp.Surname}");
+            grid.AddRow($"Stanowisko: {emp.Role}");
+            grid.AddRow($"Prywatny kod: {emp.EmployeePrivateCode}");
 
             AnsiConsole.Write(grid);
+
             Console.WriteLine("Wstaw x jeśli nie chcesz zmieniać");
             Console.CursorVisible = true;
-            Console.SetCursorPosition(28,13);
-            var newName = AnsiConsole.Prompt(
-                new TextPrompt<string>(""));
-            Console.SetCursorPosition(28, 14);
-            var newSurname = AnsiConsole.Prompt(
-                new TextPrompt<string>(""));
-            Console.SetCursorPosition(28, 15);
-            var newRole = AnsiConsole.Prompt(
-                new TextPrompt<string>(""));
-            Console.SetCursorPosition(28, 16);
-            var newCode = AnsiConsole.Prompt(
-                new TextPrompt<string>(""));
 
+            // Pobierz nowe dane lub zachowaj stare, jeśli wpisano 'x'
+            Console.Write("Nowe imię: ");
+            string newName = Console.ReadLine()?.Trim();
+            if (!string.Equals(newName, "x", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(newName))
+            {
+                emp.Name = newName;
+            }
 
+            Console.Write("Nowe nazwisko: ");
+            string newSurname = Console.ReadLine()?.Trim();
+            if (!string.Equals(newSurname, "x", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(newSurname))
+            {
+                emp.Surname = newSurname;
+            }
 
+            Console.Write("Nowe stanowisko (podaj numer z listy dostępnych ról): ");
+            string newRoleInput = Console.ReadLine()?.Trim();
+            if (!string.Equals(newRoleInput, "x", StringComparison.OrdinalIgnoreCase) && int.TryParse(newRoleInput, out int newRoleValue))
+            {
+                if (Enum.IsDefined(typeof(Employee.Occupation), newRoleValue))
+                {
+                    emp.Role = (Employee.Occupation)newRoleValue;
+                }
+                else
+                {
+                    Console.WriteLine("Niepoprawna rola. Pomijam zmianę.");
+                }
+            }
+
+            Console.Write("Nowy prywatny kod: ");
+            string newCodeInput = Console.ReadLine()?.Trim();
+            if (!string.Equals(newCodeInput, "x", StringComparison.OrdinalIgnoreCase) && short.TryParse(newCodeInput, out short newCode))
+            {
+                emp.SetEncryptedCode(newCode);
+            }
+
+            // Zastąp zmodyfikowanego pracownika w liście
+            _list[idx] = emp;
+
+            Console.WriteLine("Dane zostały zmodyfikowane.");
         }
         void AddWorkerToEmployee(List<Employee> _list)
         {
@@ -197,7 +226,7 @@ namespace Cinema
             _list.Add(employee);
             Console.WriteLine("Dodano poprawnie pracownika.");
             Console.ReadLine();
-            ClearConsolepart(13, Console.WindowHeight);
+            ClearConsolePart(13, Console.WindowHeight);
         }
 
         Employee ChooseEmploye(List<Employee> _list, string _promptTitle)
@@ -227,7 +256,7 @@ namespace Cinema
             return strings;
         }
 
-        public void ClearConsolepart(int _oldY, int _newY)
+        public void ClearConsolePart(int _oldY, int _newY)
         {
             Console.SetCursorPosition(0, _oldY);
             int width = Console.WindowWidth;

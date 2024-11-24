@@ -8,14 +8,23 @@ namespace Cinema.Models
 {
     public class RoomMovies
     {
-        public Room room;
+        public Room Room { get; set; }  // Zmieniono na właściwość
+        public List<MovieTime> MovieDuration { get; set; }  // Zmieniono na właściwość
 
-        public List<MovieTime> movieDuration;
-
-        public RoomMovies(Room _room, MovieTime _movieDuration)
+        // Konstruktor musi mieć parametry zgodne z nazwami właściwości
+        public RoomMovies(Room room, List<MovieTime> movieDuration)
         {
-            room = _room;
-            movieDuration = [_movieDuration];
+            Room = room;
+            MovieDuration = movieDuration;
         }
+
+        // Parametr `_movieDuration` powinien być listą, nie pojedynczym elementem
+        public RoomMovies(Room room, MovieTime movieDuration)
+            : this(room, new List<MovieTime> { movieDuration })
+        {
+        }
+
+        // Dodanie bezparametrowego konstruktora na potrzeby serializacji, jeśli wymagane
+        public RoomMovies() { }
     }
 }

@@ -27,6 +27,7 @@ namespace Cinema
 
             Database database = LoadOrCreateDatabase(path);
 
+            /*
             database.AddEmployee("Młocigrzyb", "Ćwik", 1111, 2);
             database.AddEmployee("Kurzonoga", "Penis", 1221, 2);
             //Testowanie dodania filmu do bazy
@@ -37,11 +38,11 @@ namespace Cinema
             var test3 = new Room("Sala234", 256);
             var test4 = new Room("Sala13", 80);
             database.AddRoom(test);
-            database.AddRoom(test2);
-            database.AddRoom(test3);
-            database.AddRoom(test4);
+            //database.AddRoom(test2);
+            //database.AddRoom(test3);
+            //database.AddRoom(test4);
             database.AddEmployee("Maria","Kowalska", 1234, 1);
-            
+            */
             SaveDatabase(database ,path);
             ShowTitlePage();
             

@@ -17,6 +17,33 @@ namespace Cinema
             List<Film> films = _database.FilmsList;
             int posY = 14;
 
+            var wtf = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title("Wybierz działanie na bazie:")
+                .AddChoices(new[] { "Dodaj film", "Usuń film", "Przeglądaj bazę", "Powrót" }));
+
+            ClearConsolepart(posY, posY + 50);
+
+            switch (wtf)
+            {
+                case "Dodaj film":
+                    AddingFilm(_database);
+                    ClearConsolepart(posY, posY + 50);
+                    break;
+                case "Usuń film":
+                    RemovingFilm(_database);
+                    break;
+                case "Przeglądaj bazę":
+                    DisplayMoviesTable(_database.FilmsList);
+                    break;
+                case "Powrót":
+                    return true;
+            }
+            return false;
+        }
+
+        private void DisplayMoviesTable(List<Film> films)
+        {
             Table movies = new Table();
             movies.Expand();
             movies.Border(TableBorder.Horizontal);
@@ -35,27 +62,6 @@ namespace Cinema
             }
 
             AnsiConsole.Write(movies);
-            int newPosY = Console.CursorTop;
-
-            var wtf = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                .Title("Wybierz działanie na bazie:")
-                .AddChoices(new[] { "Dodaj film", "Usuń film", "Przeglądaj bazę", "Powrót" }));
-
-            ClearConsolepart(posY, newPosY);
-            switch (wtf)
-            {
-                case "Dodaj film":
-                    AddingFilm(_database);
-                    ClearConsolepart(posY, newPosY + 20);
-                    break;
-                case "Usuń film":
-                    RemovingFilm(_database);
-                    break;
-                case "Powrót":
-                    return true;
-            }
-            return false;
         }
 
         public void AddingFilm(Database _database)

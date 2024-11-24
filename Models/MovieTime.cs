@@ -8,15 +8,19 @@ namespace Cinema.Models
 {
     public class MovieTime
     {
-        public Film movie { get; set; }
-        public DateTime startTime { get; set; }
-        public DateTime endTime { get; set; }
+        public Film Movie { get; set; }  // Zmieniono na właściwość z wielką literą
+        public DateTime StartTime { get; set; }  // Zmieniono na właściwość z wielką literą
+        public DateTime EndTime { get; set; }  // Zmieniono na właściwość z wielką literą
 
-        public MovieTime(Film _film, DateTime _start) 
+        // Konstruktor z nazwami zgodnymi z właściwościami
+        public MovieTime(Film movie, DateTime startTime)
         {
-            movie = _film;
-            startTime = _start;
-            endTime = _start.AddSeconds(movie.LengthSec);
+            Movie = movie;
+            StartTime = startTime;
+            EndTime = startTime.AddSeconds(movie.LengthSec);  // Ustawianie EndTime
         }
+
+        // Domyślny konstruktor na potrzeby deserializacji
+        public MovieTime() { }
     }
 }

@@ -8,6 +8,7 @@ namespace Cinema.Models
 {
     public class Employee
     {
+        private int id;
         private string name;
         private string surname;
         private Occupation role;
@@ -19,16 +20,24 @@ namespace Cinema.Models
 
         private const short key = 9977;
 
+        private static int lastUsedId = 0;  // Statyczne pole do śledzenia ostatniego ID
+
         public string Name { get => name; set => name = value; }
         public string Surname { get => surname; set => surname = value; }
         public string NormalizedName { get => normalizedName; set => normalizedName = value; }
         public short EmployeePrivateCode { get => employeePrivateCode; set => employeePrivateCode = value; }
         public List<Employee> ListOfEmployees { get => listOfEmployees; set => listOfEmployees = value; }
         public Occupation Role { get => role; set => role = value; }
+        public int Id { get => id; }  // Dodanie getter'a do ID, które jest tylko do odczytu
 
-        public Employee() { }
+        public Employee()
+        {
+            this.id = GetNextAvailableId();  // Przypisanie pierwszego dostępnego ID
+        }
+
         public Employee(string _name, string _surname, short _code, int _role)
         {
+            this.id = GetNextAvailableId();  // Przypisanie ID przy konstrukcji
             this.name = _name;
             this.surname = _surname;
             this.role = ConvertFromInt(_role);
@@ -69,6 +78,7 @@ namespace Cinema.Models
         {
             this.employeePrivateCode = (short)(_code ^ key);
         }
+
         public override bool Equals(object obj)
         {
             return obj is Employee employee &&
@@ -82,7 +92,12 @@ namespace Cinema.Models
 
         public static void SortByRole(List<Employee> _employees)
         {
-            _employees.Sort((e1,e2) => e1.Role.CompareTo(e2.Role));
+            _employees.Sort((e1, e2) => e1.Role.CompareTo(e2.Role));
+        }
+
+        private static int GetNextAvailableId()
+        {
+            return ++lastUsedId;  // Zwiększenie ostatniego używanego ID i zwrócenie go
         }
 
         public enum Occupation

@@ -173,17 +173,17 @@ namespace Cinema
         void ShowPlannedMovies(Room _room, List<RoomMovies> _moviesInRoom)
         {
             // Znajdujemy obiekt RoomMovies dla podanego pokoju
-            var roomMovies = _moviesInRoom.FirstOrDefault(rm => rm.room == _room);
+            var roomMovies = _moviesInRoom.FirstOrDefault(rm => rm.Room == _room);
 
-            if (roomMovies != null && roomMovies.movieDuration.Any())
+            if (roomMovies != null && roomMovies.MovieDuration.Any())
             {
                 // Tworzymy grid do wyświetlania zaplanowanych filmów
                 var grid = new Grid();
                 grid.AddColumn(); // Kolumna na dane filmu
 
-                foreach (var movieTime in roomMovies.movieDuration)
+                foreach (var movieTime in roomMovies.MovieDuration)
                 {
-                    var movieInfo = $"Film: {movieTime.movie.Name}, Start: {movieTime.startTime:HH:mm}, Koniec: {movieTime.endTime:HH:mm}";
+                    var movieInfo = $"Film: {movieTime.Movie.Name}, Start: {movieTime.StartTime:HH:mm}, Koniec: {movieTime.EndTime:HH:mm}";
                     grid.AddRow(movieInfo);
                 }
 
