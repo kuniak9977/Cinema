@@ -15,23 +15,18 @@ namespace Cinema
         private List<Film> filmsList;
         private List<Room> roomList;
         private List<Employee> employeeList;
-        //private Dictionary<string, List<string>> sala_film;
-
         private List<RoomMovies> moviesInRoom;
-
 
         public List<RoomMovies> MoviesInRoom { get => moviesInRoom; set => moviesInRoom = value; }
         public List<Film> FilmsList { get => filmsList; set => filmsList = value; }
         public List<Room> RoomList { get => roomList; set => roomList = value; }
         public List<Employee> EmployeeList { get => employeeList; set => employeeList = value; }
-        //public Dictionary<string,List<string>> Sala_film { get => sala_film; set => sala_film = value; }
 
         public Database()
         {
             filmsList = new List<Film>();
             roomList = new List<Room>();
             employeeList = new List<Employee>();
-            //sala_film = new Dictionary<string, List<string>>();
             moviesInRoom = new List<RoomMovies>();
         }
         

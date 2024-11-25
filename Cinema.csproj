@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <Compile Remove="Employee.cs" />
+    <Compile Remove="MoviePanel.cs" />
+    <Compile Remove="RoomPanel.cs" />
     <Compile Remove="WorkersPanel.cs" />
   </ItemGroup>
 

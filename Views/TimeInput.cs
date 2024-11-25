@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cinema
+namespace Cinema.Views
 {
     public class TimeInput
     {
@@ -104,7 +104,7 @@ namespace Cinema
                 }
 
             }
-            
+
         }
 
         DateTime ConvertToDateTime(short[] _time)

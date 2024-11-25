@@ -45,15 +45,43 @@ namespace Cinema.Views
         {
             Console.WriteLine("Podaj imię pracownika:");
             string name = Console.ReadLine()?.Trim();
+
             Console.WriteLine("Podaj nazwisko pracownika:");
             string surname = Console.ReadLine()?.Trim();
-            Console.WriteLine("Podaj 4-cyfrowy kod pracownika:");
-            short code = short.Parse(Console.ReadLine() ?? "0");
-            Console.WriteLine("Podaj numer stanowiska (0-Dyrektor, 1-Kierownik, itd.):");
-            int role = int.Parse(Console.ReadLine() ?? "5");
+
+            short code;
+            while (true)
+            {
+                Console.WriteLine("Podaj 4-cyfrowy kod pracownika (np. 1234):");
+                string input = Console.ReadLine()?.Trim();
+
+                // Sprawdzenie czy input jest liczbą i ma dokładnie 4 cyfry
+                if (short.TryParse(input, out code) && input.Length == 4)
+                {
+                    break;
+                }
+
+                Console.WriteLine("Kod musi być liczbą składającą się z dokładnie 4 cyfr. Spróbuj ponownie.");
+            }
+
+            int role;
+            while (true)
+            {
+                Console.WriteLine("Podaj numer stanowiska (0-Dyrektor, 1-Kierownik, 2-Menedżer, 3-Specjalista, 4-Pracownik, 5-Nieprzydzielony):");
+                string input = Console.ReadLine()?.Trim();
+
+                // Sprawdzenie czy role jest liczbą oraz czy mieści się w dozwolonym zakresie
+                if (int.TryParse(input, out role) && role >= 0 && role <= 5)
+                {
+                    break;
+                }
+
+                Console.WriteLine("Numer stanowiska musi być liczbą od 0 do 5. Spróbuj ponownie.");
+            }
 
             return new Employee(name, surname, code, role);
         }
+
 
         public int ChooseEmployee(List<Employee> employees, string promptTitle)
         {
