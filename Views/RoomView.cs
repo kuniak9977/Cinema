@@ -82,15 +82,23 @@ namespace Cinema.Views
 
         public void DisplayPlannedMovies(Room room, List<RoomMovies> moviesInRoom)
         {
-            var roomMovies = moviesInRoom.FirstOrDefault(rm => rm.Room == room);
+            // Filtruj filmy przypisane do konkretnej sali
+            var roomMoviesList = moviesInRoom.Where(rm => rm.Room == room).ToList();
 
-            if (roomMovies != null && roomMovies.MovieDuration.Any())
+            if (roomMoviesList.Any())
             {
                 var grid = new Grid().AddColumn();
-                foreach (var movieTime in roomMovies.MovieDuration)
+
+                // Iteruj przez każdą salę filmów
+                foreach (var roomMovies in roomMoviesList)
                 {
-                    grid.AddRow($"Film: {movieTime.Movie.Name}, Start: {movieTime.StartTime:HH:mm}, Koniec: {movieTime.EndTime:HH:mm}");
+                    foreach (var movieTime in roomMovies.MovieDuration)
+                    {
+                        grid.AddRow($"Film: {movieTime.Movie.Name}, Start: {movieTime.StartTime:HH:mm}, Koniec: {movieTime.EndTime:HH:mm}");
+                    }
                 }
+
+                // Wyświetl siatkę z filmami
                 AnsiConsole.Write(grid);
             }
             else
@@ -101,11 +109,14 @@ namespace Cinema.Views
 
         public void ShowError(string message)
         {
-            Console.WriteLine($"[Red]{message}[/]");
+            AnsiConsole.Write(new Markup($"[Red]{message}[/]\n"));
         }
 
         public string SelectMovie(List<Film> films)
         {
+            if (films.Count == 0)
+                return null;
+
             return AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Wybierz film, który chcesz dodać do kolejki:")

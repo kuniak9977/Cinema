@@ -37,7 +37,7 @@ namespace Cinema
     {
         string ShowMenu();
         Film GetFilmDetails();
-        string GetFilmNameToRemove();
+        string GetFilmNameToRemove(List<Film> films);
         void ShowRemovalResult(bool success);
         void DisplayMovies(List<Film> films);
     }

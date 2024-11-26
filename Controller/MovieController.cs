@@ -49,7 +49,7 @@ namespace Cinema.Controllers
 
         private void RemoveFilm()
         {
-            string filmName = view.GetFilmNameToRemove();
+            string filmName = view.GetFilmNameToRemove(database.FilmsList);
             bool success = database.FilmsList.RemoveAll(f => f.Name.Equals(filmName, StringComparison.OrdinalIgnoreCase)) > 0;
             view.ShowRemovalResult(success);
         }

@@ -40,7 +40,7 @@ namespace Cinema
             var test2 = new Room("Sala343", 134);
             var test3 = new Room("Sala234", 256);
             var test4 = new Room("Sala13", 80);
-            database.AddRoom(test);
+            database.AddRoom(test4);
             //database.AddRoom(test2);
             //database.AddRoom(test3);
             //database.AddRoom(test4);
@@ -99,9 +99,9 @@ namespace Cinema
             ShowAsciiArt();
 
             // Tworzenie ramki
-            var desc = new Markup("[red]!To kino nie jest najlepsze ale nada się na wyjśćie z dziewczyną czy tam innym helikopterem bojowym![/]\n" +
+            var desc = new Markup("[red]!To kino nie jest najlepsze ale nada się na wyjśćie z domu![/]\n" +
                 "U nas jest najdrożej ale za to najgorzej, a jakie zapaszki wydobywające się z WC\n" +
-                "Witaj przybyszu i zanurz się w krainie cierpienia na kolejną niezapomnianą przygodę");
+                "Witaj przybyszu i zanurz się w krainie cierpienia na kolejny niezapomniany dzień pracy.");
             desc.Justify(Justify.Center)
                 .Overflow(Overflow.Fold);
 

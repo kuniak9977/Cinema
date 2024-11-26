@@ -46,7 +46,7 @@ namespace Cinema.Views
             }
 
             _ansiConsole.Write(table);
-            _console.WriteLine("Wciśnij dowolny przycisk, aby wrócić...");
+            _console.WriteLine("Wciśnij ENTER przycisk, aby wrócić...");
             _console.ReadLine();
             ClearConsolePart(13, 30);
         }
@@ -88,7 +88,7 @@ namespace Cinema.Views
 
                 _console.WriteLine("Numer stanowiska musi być liczbą od 0 do 5. Spróbuj ponownie.");
             }
-
+            ClearConsolePart(13, 40);
             return new Employee(name, surname, code, role);
         }
 

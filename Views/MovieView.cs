@@ -1,6 +1,7 @@
 ﻿using Cinema.Models;
 using Cinema;
 using Spectre.Console;
+using Cinema.Views;
 
 public class MovieView : IMovieView
 {
@@ -70,7 +71,9 @@ public class MovieView : IMovieView
         string genre = _consoleWrapper.ReadLine();
 
         _consoleWrapper.WriteLine("Podaj czas trwania filmu w sekundach:");
-        int duration = int.Parse(_consoleWrapper.ReadLine());
+        TimeInput timeInput = new TimeInput();
+        DateTime dateTime = timeInput.DrawTimeInputPanel();
+        int duration = (int)dateTime.TimeOfDay.TotalSeconds;
 
         _consoleWrapper.WriteLine("Podaj ocenę filmu (używaj przecinka):");
         double rating = double.Parse(_consoleWrapper.ReadLine());
@@ -78,10 +81,20 @@ public class MovieView : IMovieView
         return new Film(name, description, genre, duration, rating);
     }
 
-    public string GetFilmNameToRemove()
+    public string GetFilmNameToRemove(List<Film> _list)
     {
-        _consoleWrapper.WriteLine("Podaj tytuł filmu do usunięcia (dokładny):");
-        return _consoleWrapper.ReadLine();
+        string[] listsOfMovies = new string[_list.Count];
+        int i = 0;
+        foreach (Film film in _list)
+        {
+            listsOfMovies[i++] = film.Name;
+        }
+
+        var selection = _ansiConsoleWrapper.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Wybierz film do usunięcia:")
+                .AddChoices(listsOfMovies));
+        return selection;
     }
 
     public void ShowRemovalResult(bool success)

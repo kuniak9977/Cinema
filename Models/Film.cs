@@ -37,9 +37,9 @@ namespace Cinema.Models
         }
         public string WriteFilmLength(int _sec)
         {
-            int M = (_sec / 60) % 60;
-            int S = _sec % 60;
-            int H = M / 60;
+            int H = _sec / 3600;       // Liczba godzin
+            int M = (_sec % 3600) / 60; // Liczba minut
+            int S = _sec % 60; // Pozostałe sekundy
             return $"{H}:{M}:{S}";
         }
     }
