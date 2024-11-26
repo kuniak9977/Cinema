@@ -1,88 +1,94 @@
-﻿using Spectre.Console;
-using Cinema.Models;
-using System;
-using System.Collections.Generic;
+﻿using Cinema.Models;
+using Cinema;
+using Spectre.Console;
 
-namespace Cinema.Views
+public class MovieView : IMovieView
 {
-    public class MovieView
+    private readonly IConsoleWrapper _consoleWrapper;
+    private readonly IAnsiConsoleWrapper _ansiConsoleWrapper;
+
+    // Konstruktor z interfejsami
+    public MovieView(IConsoleWrapper consoleWrapper, IAnsiConsoleWrapper ansiConsoleWrapper)
     {
-        public string ShowMenu()
+        _consoleWrapper = consoleWrapper ?? new ConsoleWrapper();
+        _ansiConsoleWrapper = ansiConsoleWrapper ?? new AnsiConsoleWrapper();
+    }
+
+    public string ShowMenu()
+    {
+        return _ansiConsoleWrapper.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Wybierz działanie na bazie:")
+                .AddChoices("Dodaj film", "Usuń film", "Przeglądaj bazę", "Powrót"));
+    }
+
+    public void DisplayMovies(List<Film> films)
+    {
+        Table movies = new Table();
+        movies.Expand();
+        movies.Border(TableBorder.Horizontal);
+
+        movies.AddColumns(
+            new TableColumn("[bold]Nazwa filmu:[/]"),
+            new TableColumn("[bold]Opis:[/]"),
+            new TableColumn("[bold]Gatunek:[/]"),
+            new TableColumn("[bold]Czas odtwarzania:[/]"),
+            new TableColumn("[bold]Oceny:[/]"));
+
+        foreach (var film in films)
         {
-            return AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("Wybierz działanie na bazie:")
-                    .AddChoices("Dodaj film", "Usuń film", "Przeglądaj bazę", "Powrót"));
+            movies.AddRow(
+                $"{film.Name}",
+                $"{film.Description}",
+                $"{film.Type}",
+                $"{film.WriteFilmLength(film.LengthSec)}",
+                $"{film.Points}/10");
         }
 
-        public void DisplayMovies(List<Film> films)
+        _ansiConsoleWrapper.Write(movies);
+        _consoleWrapper.WriteLine(" Dowolny przycisk aby kontynuoać...");
+        _consoleWrapper.ReadKey();
+        _consoleWrapper.SetCursorPosition(0, 13);
+        for (int i = 0; i < _consoleWrapper.WindowWidth; i++)
         {
-            Table movies = new Table();
-            movies.Expand();
-            movies.Border(TableBorder.Horizontal);
-
-            movies.AddColumns(
-                new TableColumn("[bold]Nazwa filmu:[/]"),
-                new TableColumn("[bold]Opis:[/]"),
-                new TableColumn("[bold]Gatunek:[/]"),
-                new TableColumn("[bold]Czas odtwarzania:[/]"),
-                new TableColumn("[bold]Oceny:[/]"));
-
-            foreach (var film in films)
-            {
-                movies.AddRow(
-                    $"{film.Name}",
-                    $"{film.Description}",
-                    $"{film.Type}",
-                    $"{film.WriteFilmLength(film.LengthSec)}",
-                    $"{film.Points}/10");
-            }
-
-            AnsiConsole.Write(movies);
-            Console.WriteLine(" Dowolny przycisk aby kontynuoać...");
-            Console.ReadKey();
-            Console.SetCursorPosition(0, 13);
-            for (int i = 0; i < Console.WindowHeight; i++)
-            {
-                Console.Write(new string(' ', Console.WindowWidth));
-            }
-            Console.SetCursorPosition(0, 13);
+            _consoleWrapper.Write(new string(' ', _consoleWrapper.WindowWidth));
         }
+        _consoleWrapper.SetCursorPosition(0, 13);
+    }
 
-        public Film GetFilmDetails()
-        {
-            Console.Write("Dodawanie filmu. Wprowadzane dane potwierdzaj Enter.\n");
-            Console.WriteLine("Podaj nazwę filmu (nie może być pusta):");
-            string name;
-            while (string.IsNullOrWhiteSpace(name = Console.ReadLine())) { }
+    public Film GetFilmDetails()
+    {
+        _consoleWrapper.Write("Dodawanie filmu. Wprowadzane dane potwierdzaj Enter.\n");
+        _consoleWrapper.WriteLine("Podaj nazwę filmu (nie może być pusta):");
+        string name;
+        while (string.IsNullOrWhiteSpace(name = _consoleWrapper.ReadLine())) { }
 
-            Console.WriteLine("Wprowadź opis filmu:");
-            string description = Console.ReadLine();
+        _consoleWrapper.WriteLine("Wprowadź opis filmu:");
+        string description = _consoleWrapper.ReadLine();
 
-            Console.WriteLine("Podaj gatunek filmu:");
-            string genre = Console.ReadLine();
+        _consoleWrapper.WriteLine("Podaj gatunek filmu:");
+        string genre = _consoleWrapper.ReadLine();
 
-            Console.WriteLine("Podaj czas trwania filmu w sekundach:");
-            int duration = int.Parse(Console.ReadLine());
+        _consoleWrapper.WriteLine("Podaj czas trwania filmu w sekundach:");
+        int duration = int.Parse(_consoleWrapper.ReadLine());
 
-            Console.WriteLine("Podaj ocenę filmu (używaj przecinka):");
-            double rating = double.Parse(Console.ReadLine());
+        _consoleWrapper.WriteLine("Podaj ocenę filmu (używaj przecinka):");
+        double rating = double.Parse(_consoleWrapper.ReadLine());
 
-            return new Film(name, description, genre, duration, rating);
-        }
+        return new Film(name, description, genre, duration, rating);
+    }
 
-        public string GetFilmNameToRemove()
-        {
-            Console.WriteLine("Podaj tytuł filmu do usunięcia (dokładny):");
-            return Console.ReadLine();
-        }
+    public string GetFilmNameToRemove()
+    {
+        _consoleWrapper.WriteLine("Podaj tytuł filmu do usunięcia (dokładny):");
+        return _consoleWrapper.ReadLine();
+    }
 
-        public void ShowRemovalResult(bool success)
-        {
-            if (success)
-                Console.WriteLine("Film został usunięty.");
-            else
-                Console.WriteLine("Nie znaleziono filmu o podanej nazwie.");
-        }
+    public void ShowRemovalResult(bool success)
+    {
+        if (success)
+            _consoleWrapper.WriteLine("Film został usunięty.");
+        else
+            _consoleWrapper.WriteLine("Nie znaleziono filmu o podanej nazwie.");
     }
 }

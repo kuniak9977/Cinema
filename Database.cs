@@ -10,7 +10,7 @@ using static Cinema.Models.Employee;
 
 namespace Cinema
 {
-    public class Database
+    public class Database : IDatabase
     {
         private List<Film> filmsList;
         private List<Room> roomList;

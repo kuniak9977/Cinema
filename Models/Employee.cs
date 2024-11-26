@@ -47,7 +47,7 @@
             subordinateIds.Add(subordinateId);
         }
 
-        private static Occupation ConvertFromInt(int _role)
+        public static Occupation ConvertFromInt(int _role)
         {
             if (Enum.IsDefined(typeof(Occupation), _role))
                 return (Occupation)_role;

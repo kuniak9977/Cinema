@@ -5,11 +5,21 @@ using Spectre.Console;
 
 namespace Cinema.Views
 {
-    public class EmployeeView
+    public class EmployeeView : IEmployeeView
     {
+        private readonly IConsoleWrapper _console;
+        private readonly IAnsiConsoleWrapper _ansiConsole;
+
+        public EmployeeView(IConsoleWrapper console = null, IAnsiConsoleWrapper ansiConsole = null)
+        {
+            _console = console ?? new ConsoleWrapper();
+            _ansiConsole = ansiConsole ?? new AnsiConsoleWrapper();
+        }
+
+
         public string PromptAction()
         {
-            return AnsiConsole.Prompt(
+            return _ansiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Akcje do wybrania w tym panelu")
                     .AddChoices("Dodaj nowego pracownika", "Dodaj podwładnego do pracownika", "Modyfikuj rekord pracownika", "Przeglądaj bazę", "Powrót"));
@@ -35,25 +45,25 @@ namespace Cinema.Views
                 table.AddRow($"{e.Id}", $"{e.Name}", $"{e.Surname}", $"{e.Role}");
             }
 
-            AnsiConsole.Write(table);
-            Console.WriteLine("Wciśnij dowolny przycisk, aby wrócić...");
-            Console.ReadLine();
+            _ansiConsole.Write(table);
+            _console.WriteLine("Wciśnij dowolny przycisk, aby wrócić...");
+            _console.ReadLine();
             ClearConsolePart(13, 30);
         }
 
         public Employee CollectEmployeeData()
         {
-            Console.WriteLine("Podaj imię pracownika:");
-            string name = Console.ReadLine()?.Trim();
+            _console.WriteLine("Podaj imię pracownika:");
+            string name = _console.ReadLine()?.Trim();
 
-            Console.WriteLine("Podaj nazwisko pracownika:");
-            string surname = Console.ReadLine()?.Trim();
+            _console.WriteLine("Podaj nazwisko pracownika:");
+            string surname = _console.ReadLine()?.Trim();
 
             short code;
             while (true)
             {
-                Console.WriteLine("Podaj 4-cyfrowy kod pracownika (np. 1234):");
-                string input = Console.ReadLine()?.Trim();
+                _console.WriteLine("Podaj 4-cyfrowy kod pracownika (np. 1234):");
+                string input = _console.ReadLine()?.Trim();
 
                 // Sprawdzenie czy input jest liczbą i ma dokładnie 4 cyfry
                 if (short.TryParse(input, out code) && input.Length == 4)
@@ -61,14 +71,14 @@ namespace Cinema.Views
                     break;
                 }
 
-                Console.WriteLine("Kod musi być liczbą składającą się z dokładnie 4 cyfr. Spróbuj ponownie.");
+                _console.WriteLine("Kod musi być liczbą składającą się z dokładnie 4 cyfr. Spróbuj ponownie.");
             }
 
             int role;
             while (true)
             {
-                Console.WriteLine("Podaj numer stanowiska (0-Dyrektor, 1-Kierownik, 2-Menedżer, 3-Specjalista, 4-Pracownik, 5-Nieprzydzielony):");
-                string input = Console.ReadLine()?.Trim();
+                _console.WriteLine("Podaj numer stanowiska (0-Dyrektor, 1-Kierownik, 2-Menedżer, 3-Specjalista, 4-Pracownik, 5-Nieprzydzielony):");
+                string input = _console.ReadLine()?.Trim();
 
                 // Sprawdzenie czy role jest liczbą oraz czy mieści się w dozwolonym zakresie
                 if (int.TryParse(input, out role) && role >= 0 && role <= 5)
@@ -76,7 +86,7 @@ namespace Cinema.Views
                     break;
                 }
 
-                Console.WriteLine("Numer stanowiska musi być liczbą od 0 do 5. Spróbuj ponownie.");
+                _console.WriteLine("Numer stanowiska musi być liczbą od 0 do 5. Spróbuj ponownie.");
             }
 
             return new Employee(name, surname, code, role);
@@ -91,7 +101,7 @@ namespace Cinema.Views
                 choices.Add($"{e.Id}: {e.Name} {e.Surname} - {e.Role}");
             }
 
-            string selected = AnsiConsole.Prompt(
+            string selected = _ansiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title(promptTitle)
                     .AddChoices(choices));
@@ -100,13 +110,13 @@ namespace Cinema.Views
 
         public void ClearConsolePart(int oldY, int newY)
         {
-            Console.SetCursorPosition(0, oldY);
+            _console.SetCursorPosition(0, oldY);
             int width = Console.WindowWidth;
             for (int i = oldY; i <= newY; i++)
             {
                 Console.Write(new string(' ', width));
             }
-            Console.SetCursorPosition(0, oldY);
+            _console.SetCursorPosition(0, oldY);
         }
     }
 }

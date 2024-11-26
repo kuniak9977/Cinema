@@ -59,7 +59,7 @@ namespace Cinema
 
             // Kontrolery MVC
             var employeeController = new EmployeeController(database.EmployeeList, new EmployeeView());
-            var movieController = new MovieController(database, new MovieView());
+            var movieController = new MovieController(database, new MovieView(null, null));
             var roomController = new RoomController(database, new RoomView());
 
             // Główna pętla

@@ -7,10 +7,10 @@ namespace Cinema.Controllers
 {
     public class MovieController
     {
-        private readonly Database database;
-        private readonly MovieView view;
+        private readonly IDatabase database;
+        private readonly IMovieView view;
 
-        public MovieController(Database database, MovieView view)
+        public MovieController(IDatabase database, IMovieView view)
         {
             this.database = database;
             this.view = view;
