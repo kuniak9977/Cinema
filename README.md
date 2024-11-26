@@ -55,4 +55,4 @@ CinemaManager to prosta aplikacja konsolowa stworzona na wzór architektury MVC.
 ---
 
 ## Autor ✨
-Projekt wykonany przez studenta Politechniki Białostockiej na zajęcia "Komunikacja Człowiek-Komputer".
+Projekt wykonany przez studenta Politechniki Białostockiej Michał Kunicki na zajęcia "Komunikacja Człowiek-Komputer".
