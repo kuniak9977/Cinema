@@ -1,6 +1,8 @@
 ﻿using Spectre.Console;
 using System.Text.Json;
 using Cinema.Models;
+using Cinema.Controllers;
+using Cinema.Views;
 
 namespace Cinema
 {
@@ -17,19 +19,20 @@ namespace Cinema
             Console.CursorVisible = false;
             string path = "CinemaDB.json";
             bool isWorking = true;
-            bool work = false;
             bool accesGranted = false;
+
+            // Ustawienia konsoli
             Console.WindowHeight = 50;
             Console.WindowWidth = 160;
-
             Console.OutputEncoding = System.Text.Encoding.Unicode;
             Console.InputEncoding = System.Text.Encoding.Unicode;
 
+            // Załaduj lub stwórz bazę danych
             Database database = LoadOrCreateDatabase(path);
 
             /*
             database.AddEmployee("Młocigrzyb", "Ćwik", 1111, 2);
-            database.AddEmployee("Kurzonoga", "Penis", 1221, 2);
+            //database.AddEmployee("Kurzonoga", "Penis", 1221, 2);
             //Testowanie dodania filmu do bazy
             var film = new Film("Pogoń za oceną", "Naj naj film o utracie chęci do życia", "Dramat", 6490, 4.5);
             database.AddFilm(film);
@@ -41,51 +44,46 @@ namespace Cinema
             //database.AddRoom(test2);
             //database.AddRoom(test3);
             //database.AddRoom(test4);
-            database.AddEmployee("Maria","Kowalska", 1234, 1);
+            //database.AddEmployee("Maria","Kowalska", 1234, 1);
             */
-            SaveDatabase(database ,path);
-            ShowTitlePage();
-            
 
+
+            SaveDatabase(database, path);
+            ShowTitlePage();
+
+            // Sprawdź kod pracownika przed dostępem do panelu
             while (!accesGranted)
             {
                 accesGranted = InsertCode(database.EmployeeList);
             }
 
+            // Kontrolery MVC
+            var employeeController = new EmployeeController(database.EmployeeList, new EmployeeView());
+            var movieController = new MovieController(database, new MovieView(null, null));
+            var roomController = new RoomController(database, new RoomView());
+
+            // Główna pętla
             while (isWorking)
             {
                 switch (ShowAdminPanel())
                 {
-                    case 0:
-                        MoviePanelAdm p = new MoviePanelAdm();
-                        while (!work)
-                        {
-                            work = p.MoviePanel(database);
-                        }
-                        work = false;
+                    case 0: // Panel filmów
+                        movieController.Run();
                         break;
-                    case 1:
-                        RoomPanelAdm r = new RoomPanelAdm();
-                        while (!work)
-                        {
-                            work = r.RoomPanel(database);
-                        }
-                        work = false;
+                    case 1: // Panel sal kinowych
+                        roomController.Run();
                         break;
-                    case 2:
-                        WorkersPanel w = new WorkersPanel();
-                        while (!work)
-                            work = w.WorkersReview(database.EmployeeList);
-                        work = false;
+                    case 2: // Panel pracowników
+                        employeeController.Run();
                         break;
-                    case 3:
+                    case 3: // Wyjście
                         isWorking = false;
                         break;
                 }
             }
-            
-            SaveDatabase(database, path);
 
+            // Zapisz zmiany w bazie danych
+            SaveDatabase(database, path);
         }
 
         void ShowAsciiArt()
